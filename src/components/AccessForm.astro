@@ -1,0 +1,79 @@
+---
+// One sign-up form for investors and early users, shared by the home and team pages.
+// Posts to PUBLIC_FORM_ENDPOINT (e.g. Formspree / Buttondown) once the team picks a provider.
+interface Props {
+  uid?: string;
+}
+const { uid = "f" } = Astro.props;
+const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? "";
+---
+
+<form class="form" method="post" action={endpoint || undefined} data-form data-endpoint={endpoint}>
+  <label class="sr-only" for={`${uid}-email`}>Email</label>
+  <input id={`${uid}-email`} name="email" type="email" required placeholder="you@lab.org" autocomplete="email" />
+  <label class="sr-only" for={`${uid}-role`}>I am</label>
+  <select id={`${uid}-role`} name="role">
+    <option value="early-user">I want to try it</option>
+    <option value="investor">I'm an investor</option>
+    <option value="educator">Educator / teaching lab</option>
+    <option value="other">Other</option>
+  </select>
+  <button class="btn btn--primary" type="submit">Get in touch <span class="arrow">→</span></button>
+  <p class="form__msg mono" role="status" aria-live="polite"></p>
+</form>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>("[data-form]").forEach((form) =>
+    form.addEventListener("submit", async (e) => {
+      const msg = form.querySelector<HTMLElement>(".form__msg")!;
+      const ep = form.dataset.endpoint;
+      e.preventDefault();
+      if (!ep) {
+        msg.textContent = "Sign-up opens soon. The form is not connected yet.";
+        return;
+      }
+      try {
+        const r = await fetch(ep, { method: "POST", body: new FormData(form), headers: { Accept: "application/json" } });
+        msg.textContent = r.ok ? "Thank you. We'll be in touch." : "Something went wrong. Please try again.";
+        if (r.ok) form.reset();
+      } catch {
+        msg.textContent = "Network error. Please try again.";
+      }
+    }),
+  );
+</script>
+
+<style>
+  .form {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
+    gap: var(--s-2);
+  }
+  .form input,
+  .form select {
+    min-height: 48px;
+    padding: 0 var(--s-4);
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+  }
+  .form input:focus,
+  .form select:focus {
+    border-color: var(--heat);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--heat-glow);
+  }
+  .form__msg {
+    grid-column: 1 / -1;
+    min-height: 1.4em;
+    font-size: 0.8125rem;
+    color: var(--sensor);
+  }
+  @media (max-width: 900px) {
+    .form {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

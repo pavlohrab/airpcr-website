@@ -1,0 +1,48 @@
+{
+  "mission": "We think every lab bench should be able to run PCR. So we're building a PCR machine out of air.",
+  "people": [
+    {
+      "name": "Baris Özdinç",
+      "role": "Co-founder · CEO",
+      "creds": "PhD candidate in Microbiology, Wageningen University & Research",
+      "plain": "Uses PCR every day in his research, studying gut bacteria in hundreds of samples. He knows what you need from a PCR machine.",
+      "note": "the PCR expert",
+      "photo": "img/team/baris.webp",
+      "links": {
+        "linkedin": "https://www.linkedin.com/in/bar%C4%B1%C5%9F-erhan-%C3%B6zdin/",
+        "scholar": "https://scholar.google.com/citations?user=VnTjs4gAAAAJ&hl=en",
+        "wur": "https://www.wur.nl/en/persons/be-baris-ozdinc-msc"
+      },
+      "photoLink": "https://www.linkedin.com/in/bar%C4%B1%C5%9F-erhan-%C3%B6zdin/"
+    },
+    {
+      "name": "Pavlo Hrab, PhD",
+      "role": "Co-founder · CTO",
+      "creds": "PhD in Bioinformatics, computational biologist",
+      "plain": "Writes software and analyses data to understand biology. At AirPCR he leads the simulation, the open-source software and the AI integration.",
+      "note": "simulation + open source",
+      "photo": "img/team/pavlo.webp",
+      "links": {
+        "website": "https://pavlohrab.com",
+        "linkedin": "https://linkedin.com/in/phrab",
+        "scholar": "https://scholar.google.com/citations?user=VKJQl6UAAAAJ"
+      },
+      "photoLink": "https://linkedin.com/in/phrab"
+    }
+  ],
+  "principles": [
+    {
+      "title": "Model first, then build.",
+      "text": "We test ideas in a computer before we cut a single part."
+    },
+    {
+      "title": "Measure everything.",
+      "text": "Every claim gets checked on the bench, and we say which numbers are measured."
+    },
+    {
+      "title": "Open by default.",
+      "text": "Open data, open connections, parts anyone can buy."
+    }
+  ],
+  "supporters": []
+}

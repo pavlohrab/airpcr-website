@@ -1,0 +1,50 @@
+---
+import AirLoop from "../components/AirLoop.astro";
+import AccessForm from "../components/AccessForm.astro";
+interface Props {
+  loop?: boolean;
+}
+const { loop = true } = Astro.props;
+---
+
+<section class="section access" id="access" aria-labelledby="access-title">
+  <div class:list={["wrap", "access__grid", { "access__grid--solo": !loop }]}>
+    <div class="access__copy">
+      <p class="eyebrow reveal">Get in touch</p>
+      <h2 id="access-title" class="reveal" style="--i:1">Invest, or be among the first to <span class="accent">try it.</span></h2>
+      <p class="lead reveal" style="--i:2">We're building the first units, and we're looking for investors and early users.</p>
+      <div class="reveal" style="--i:3"><AccessForm /></div>
+    </div>
+    {
+      loop && (
+        <div class="access__fig" aria-hidden="true">
+          <AirLoop uid="foot" labels={false} />
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .access {
+    overflow: hidden;
+  }
+  .access__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+    gap: var(--s-7);
+    align-items: center;
+  }
+  .access__grid--solo {
+    grid-template-columns: minmax(0, 8fr);
+  }
+  .access__copy {
+    display: grid;
+    gap: var(--s-5);
+  }
+  @media (max-width: 900px) {
+    .access__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,233 @@
+---
+import AirLoop from "../components/AirLoop.astro";
+import Tag from "../components/Tag.astro";
+import data from "../data/site-data.json";
+const c = data.claims;
+const base = import.meta.env.BASE_URL;
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="wrap hero__grid">
+    <div class="hero__copy">
+      <p class="eyebrow reveal">Hot-air PCR thermocycler</p>
+      <h1 id="hero-title" class="reveal" style="--i:1">PCR,<br />made of <span class="accent">air.</span></h1>
+      <p class="lead reveal" style="--i:2">
+        A fan and a light heater do the work of a heavy metal block. Sixteen tubes, steady to within a degree, from parts
+        that cost about ${c.parts_usd.value}.
+      </p>
+      <div class="hero__ctas reveal" style="--i:3">
+        <a class="btn btn--primary" href={`${base}#access`}>Invest or try it first <span class="arrow">→</span></a>
+        <a class="btn" href={`${base}#how`}>How it works</a>
+      </div>
+
+      <dl class="stats reveal" style="--i:4">
+        <div class="stat">
+          <dt>tubes per run</dt>
+          <dd><span class="num" data-count={c.tubes.value}>{c.tubes.value}</span></dd>
+        </div>
+        <div class="stat">
+          <dt>full PCR</dt>
+          <dd><span class="num" data-count={Math.round(c.fast_min.value)}>{Math.round(c.fast_min.value)}</span><span class="unit">min</span></dd>
+        </div>
+        <div class="stat">
+          <dt>tube to tube</dt>
+          <dd><span class="unit">&lt; </span><span class="num">1</span><span class="unit">°C</span></dd>
+        </div>
+        <div class="stat">
+          <dt>in parts</dt>
+          <dd><span class="unit">$</span><span class="num" data-count={c.parts_usd.value}>{c.parts_usd.value}</span></dd>
+        </div>
+      </dl>
+      <p class="stats__note reveal" style="--i:5"><Tag source="simulated" /> <span>Numbers from our model. Real measurements come next.</span></p>
+    </div>
+
+    <figure class="hero__fig">
+      <AirLoop uid="hero" />
+      <figcaption class="readout mono" data-readout="hero" data-state="hot" aria-live="off">
+        <span class="readout__row">
+          <span class="readout__dot" aria-hidden="true"></span>
+          <span class="readout__k">sample</span>
+          <span class="readout__v"><span data-r="T">72.0</span><span class="unit">°C</span></span>
+          <span class="readout__k">air</span>
+          <span class="readout__v readout__air"><span data-r="air">72</span><span class="unit">°C</span></span>
+          <span class="readout__step" data-r="step">holding</span>
+        </span>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<script>
+  import "../scripts/airloop";
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    padding-block: clamp(2.5rem, 2rem + 4vw, 6rem) var(--section-y);
+    overflow: hidden;
+  }
+  /* warm glow behind the loop */
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: auto -10% 10% 35%;
+    height: 70%;
+    background: radial-gradient(closest-side, var(--heat-glow), transparent 70%);
+    opacity: 0.35;
+    filter: blur(30px);
+    pointer-events: none;
+  }
+  .hero__grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(2rem, 4vw, 4rem);
+    align-items: center;
+  }
+  .hero__copy {
+    display: grid;
+    gap: var(--s-5);
+  }
+  .hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    margin-top: var(--s-4);
+    border-top: 1px solid var(--rule);
+  }
+  .stat {
+    display: grid;
+    gap: var(--s-1);
+    align-content: start;
+    justify-items: start;
+    padding: var(--s-4) var(--s-4) 0 0;
+  }
+  .stat + .stat {
+    padding-left: var(--s-4);
+    border-left: 1px solid var(--rule);
+  }
+  .stat dt {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .stat dd {
+    font-family: var(--font-mono);
+    font-size: clamp(1.7rem, 1.1rem + 1.6vw, 2.6rem);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+  }
+  .stat dd .unit {
+    font-size: 0.42em;
+    letter-spacing: 0;
+  }
+  .hero__fig {
+    position: relative;
+    display: grid;
+    gap: var(--s-4);
+  }
+  .readout {
+    display: grid;
+    gap: var(--s-2);
+    justify-self: end;
+    width: min(100%, 480px);
+    padding: var(--s-3) var(--s-4);
+    background: color-mix(in srgb, var(--surface) 85%, transparent);
+    border: 1px solid var(--rule);
+    border-left: 2px solid var(--heat);
+    border-radius: var(--radius);
+    font-size: 0.8125rem;
+    color: var(--ink-2);
+    transition: border-color var(--t-med) var(--ease);
+  }
+  .readout[data-state="cool"] {
+    border-left-color: var(--cool);
+  }
+  .readout__row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s-2);
+    flex-wrap: wrap;
+  }
+  .readout__k {
+    color: var(--muted);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .readout__v {
+    color: var(--ink);
+    font-size: 1.125rem;
+    min-width: 4.6ch;
+    margin-right: var(--s-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .readout__air {
+    color: var(--heat);
+  }
+  .readout[data-state="cool"] .readout__air {
+    color: var(--cool);
+  }
+  .readout__step {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--ink-2);
+  }
+  .stats__note {
+    display: flex;
+    gap: var(--s-2);
+    align-items: center;
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+  .readout__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--heat);
+    box-shadow: 0 0 8px var(--heat);
+    align-self: center;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  .readout[data-state="cool"] .readout__dot {
+    background: var(--cool);
+    box-shadow: 0 0 8px var(--cool);
+  }
+  @keyframes pulse {
+    50% {
+      opacity: 0.35;
+    }
+  }
+  @media (max-width: 960px) {
+    .hero__grid {
+      grid-template-columns: 1fr;
+    }
+    .readout {
+      justify-self: stretch;
+      width: 100%;
+    }
+  }
+  @media (max-width: 520px) {
+    .stats {
+      grid-template-columns: 1fr 1fr;
+    }
+    .stat + .stat:nth-child(3) {
+      border-left: 0;
+      padding-left: 0;
+    }
+    .stat:nth-child(n + 3) {
+      border-top: 1px solid var(--rule);
+      margin-top: var(--s-4);
+    }
+  }
+</style>

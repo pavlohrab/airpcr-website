@@ -1,0 +1,272 @@
+---
+// The living style sheet: tokens, type, components and motion, rendered from the real CSS.
+import Base from "../layouts/Base.astro";
+import Tag from "../components/Tag.astro";
+import Wordmark from "../components/Wordmark.astro";
+import AirLoop from "../components/AirLoop.astro";
+
+const colours = [
+  ["--bg", "Board", "page background (the sketch's black board)"],
+  ["--surface", "Surface", "cards, panels"],
+  ["--surface-2", "Surface 2", "tracks, selected tabs"],
+  ["--rule", "Rule", "hairlines, borders"],
+  ["--ink", "Ink", "headings, body"],
+  ["--ink-2", "Ink 2", "secondary text, units"],
+  ["--muted", "Muted", "captions, eyebrows"],
+  ["--heat", "Ember", "AirPCR, hot air, heaters — the brand accent"],
+  ["--cool", "Cool", "cooling, room air, the vent"],
+  ["--sensor", "Sensor", "probes, live data, “simulated” tags"],
+  ["--ref", "Reference", "competitor machines, always neutral"],
+  ["--compare", "Compare", "one named comparison machine in a chart (e.g. Bio-Rad T100)"],
+  ["--good", "Good", "status only, “measured” tags"],
+  ["--warn", "Warn", "status only"],
+  ["--bad", "Bad", "status only"],
+];
+const scale = [
+  ["--fs-hero", "Display / H1", "Space Grotesk 700 · −0.035em", "PCR, made of air."],
+  ["--fs-h2", "H2", "Space Grotesk 600 · −0.025em", "Seven parts, one loop."],
+  ["--fs-h3", "H3", "Space Grotesk 600 · −0.015em", "Precision comes from feedback"],
+  ["--fs-lead", "Lead", "IBM Plex Sans 400", "Air stores almost no heat, so it can run hotter than the target."],
+  ["--fs-body", "Body", "IBM Plex Sans 400 · 1.6", "A fan drives air round a closed loop past a light heater and sixteen tubes."],
+  ["--fs-mono", "Data", "IBM Plex Mono 400 · tabular", "38.2 min · 0.92 °C · 1,953 W"],
+  ["--fs-eyebrow", "Eyebrow", "Plex Mono 500 · caps · +0.14em", "HOW IT WORKS"],
+  ["--fs-hand", "Hand", "Caveat 500 — annotations only", "crude heater + fast feedback"],
+];
+const motion = [
+  ["Hero loop", "Strokes draw on (1.4 s), then ~46 particles circulate; one simulated cycle plays at 8× and drives the heater glow, vent flap and readout."],
+  ["Draw-on", "stroke-dashoffset from length to 0 when a figure enters view, 1.4 s, ease-in-out, staggered 70 ms per stroke."],
+  ["Reveal", "opacity 0 → 1 and translateY 18 px → 0, 900 ms, cubic-bezier(.2,.7,.2,1), stagger 80 ms (--i)."],
+  ["Count-up", "Numbers count once from 0 over 900 ms, ease-out-cubic."],
+  ["Bars grow", "scaleX 0 → 1, 1.1 s; competitor bars grey, ours ember with glow."],
+  ["Spotlight", "Pinned loop; the step in mid-viewport lights its part, the rest drop to 18 % opacity."],
+  ["Micro", "Nav underline slide, card ember border-glow, button arrow nudge 4 px, 180 ms."],
+  ["Reduced motion", "Everything shows its end state; no particles, no loops."],
+];
+---
+
+<Base title="AirPCR — style sheet" description="AirPCR design system: colour, type, components and motion.">
+  <section class="section">
+    <div class="wrap sg">
+      <header class="sg__head">
+        <p class="eyebrow">Style sheet · rev 0.2</p>
+        <h1>AirPCR design system</h1>
+        <p class="lead">
+          Technical rigour underneath and hand drawing on top. Colour follows meaning, every number names its source, and
+          motion is one signature effect plus quiet supporting moves.
+        </p>
+      </header>
+
+      <h2 class="sg__h2">Brand</h2>
+      <div class="sg__brand">
+        <div class="card"><Wordmark size={40} /></div>
+        <div class="card sg__taglines">
+          <p class="eyebrow">Tagline candidates</p>
+          <p class="sg__tl">PCR, made of <span class="accent">air.</span></p>
+          <p class="sg__tl">Thermal cycling with nothing but moving air.</p>
+          <p class="sg__tl">Sixteen tubes. Hot air. Open.</p>
+        </div>
+      </div>
+
+      <h2 class="sg__h2">Colour — meaning first</h2>
+      <div class="sg__swatches">
+        {
+          colours.map(([v, name, use]) => (
+            <div class="sw">
+              <span class="sw__chip" style={`background: var(${v})`} />
+              <span class="sw__name">{name}</span>
+              <code class="sw__var">{v}</code>
+              <span class="sw__use small">{use}</span>
+            </div>
+          ))
+        }
+      </div>
+      <p class="small">Ember only ever means AirPCR or heat. Competitors are always neutral grey. Toggle the theme (top right) for Datasheet Light.</p>
+
+      <h2 class="sg__h2">Type</h2>
+      <div class="sg__type">
+        {
+          scale.map(([v, name, spec, sample]) => (
+            <div class="ty">
+              <div class="ty__meta mono">
+                <span>{name}</span>
+                <span class="ty__spec">{spec}</span>
+                <code>{v}</code>
+              </div>
+              <p
+                class:list={[
+                  "ty__sample",
+                  { eyebrow: name === "Eyebrow", hand: name === "Hand", mono: name === "Data", lead: name === "Lead" },
+                ]}
+                style={`font-size: var(${v}); ${name.startsWith("Display") || name.startsWith("H") ? "font-family: var(--font-display); font-weight: 600; letter-spacing:-0.025em; line-height:1.05" : ""}`}
+              >
+                {sample}
+              </p>
+            </div>
+          ))
+        }
+      </div>
+
+      <h2 class="sg__h2">Components</h2>
+      <div class="sg__comp">
+        <div class="card sg__row">
+          <a class="btn btn--primary" href="#">Join early access <span class="arrow">→</span></a>
+          <a class="btn" href="#">See how it works</a>
+          <a class="btn btn--ghost" href="#">Ghost</a>
+        </div>
+        <div class="card sg__row">
+          <Tag source="simulated" /><Tag source="measured" /><Tag source="published" /><Tag source="design" />
+          <span class="small">Every number carries one.</span>
+        </div>
+        <div class="card">
+          <p class="eyebrow">Stat</p>
+          <p class="mono" style="font-size: var(--fs-stat); letter-spacing:-0.03em; line-height:1.05">
+            38.2<span class="unit">min</span>
+          </p>
+          <Tag source="simulated" />
+        </div>
+        <div class="card crop">
+          <p class="eyebrow">Card · crop marks</p>
+          <h3>Hover me</h3>
+          <p class="small">1 px rule, 2 px radius, ember border-glow on hover.</p>
+        </div>
+      </div>
+
+      <h2 class="sg__h2">Hand drawing</h2>
+      <div class="card sg__loop">
+        <AirLoop uid="sg" />
+      </div>
+      <p class="small">
+        Strokes are generated at build time (<code>src/lib/sketch.ts</code>) with a seeded wobble, so they look hand-drawn but
+        are crisp, themeable and animatable. Caveat is for labels and margin notes only, never for body text.
+      </p>
+
+      <h2 class="sg__h2">Motion</h2>
+      <dl class="sg__motion">
+        {
+          motion.map(([k, v]) => (
+            <div>
+              <dt class="mono">{k}</dt>
+              <dd class="small">{v}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+  <script>
+    import "../scripts/airloop";
+  </script>
+</Base>
+
+<style>
+  .sg {
+    display: grid;
+    gap: var(--s-5);
+  }
+  .sg__head {
+    display: grid;
+    gap: var(--s-4);
+    margin-bottom: var(--s-6);
+  }
+  .sg__h2 {
+    font-size: 1.5rem;
+    margin-top: var(--s-7);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--rule);
+  }
+  .sg__brand {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: var(--s-5);
+  }
+  .sg__brand .card:first-child {
+    display: grid;
+    place-items: center;
+    min-height: 180px;
+  }
+  .sg__taglines {
+    display: grid;
+    gap: var(--s-2);
+  }
+  .sg__tl {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .sg__swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: var(--s-4);
+  }
+  .sw {
+    display: grid;
+    gap: 4px;
+  }
+  .sw__chip {
+    height: 64px;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+  }
+  .sw__name {
+    font-weight: 600;
+  }
+  .sw__var {
+    color: var(--muted);
+    font-size: 0.75rem;
+  }
+  .sg__type {
+    display: grid;
+  }
+  .ty {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+    gap: var(--s-5);
+    padding-block: var(--s-5);
+    border-bottom: 1px dashed var(--rule);
+    align-items: baseline;
+  }
+  .ty__meta {
+    display: grid;
+    gap: 2px;
+    font-size: 0.75rem;
+    color: var(--ink-2);
+  }
+  .ty__spec,
+  .ty__meta code {
+    color: var(--muted);
+  }
+  .ty__sample {
+    max-width: none;
+  }
+  .sg__comp {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-5);
+  }
+  .sg__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    align-items: center;
+  }
+  .sg__loop {
+    padding: clamp(1rem, 4vw, 3rem);
+  }
+  .sg__motion {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--s-5);
+  }
+  .sg__motion dt {
+    color: var(--heat);
+    margin-bottom: var(--s-1);
+  }
+  @media (max-width: 760px) {
+    .sg__brand,
+    .sg__comp,
+    .ty {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

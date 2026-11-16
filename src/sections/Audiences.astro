@@ -1,0 +1,89 @@
+---
+import SectionHead from "../components/SectionHead.astro";
+import { stroke, circle, roundRect, type Pt } from "../lib/sketch";
+
+let seed = 500;
+const s = (p: Pt[], a = 1.0) => stroke(p, seed++, a);
+// doodle icons, 64×64
+const icons: Record<string, { d: string; len: number; c?: string }[]> = {
+  edu: [
+    s([[6, 26], [32, 14], [58, 26], [32, 38], [6, 26]]),
+    s([[16, 31], [16, 46], [32, 52], [48, 46], [48, 31]]),
+    { ...s([[58, 26], [58, 44]]), c: "var(--heat)" },
+  ],
+  maker: [
+    s([[14, 50], [36, 28]], 1.2),
+    s(circle(42, 22, 10, 18, 0.1)),
+    { ...s([[38, 18], [46, 26]]), c: "var(--heat)" },
+    s([[10, 54], [18, 46]], 1.2),
+  ],
+  auto: [
+    s([[10, 54], [30, 54]], 0.8),
+    s([[20, 54], [20, 40], [36, 24]], 1.0),
+    s(circle(20, 40, 4, 12, 0.1), 0.4),
+    { ...s([[36, 24], [48, 18], [52, 26]]), c: "var(--heat)" },
+    { ...s([[36, 24], [46, 32], [52, 28]]), c: "var(--heat)" },
+  ],
+  lab: [
+    s([[24, 8], [40, 8]]),
+    s([[26, 8], [26, 30], [16, 52], [48, 52], [38, 30], [38, 8]]),
+    { ...s([[20, 42], [44, 42]]), c: "var(--heat)" },
+  ],
+};
+const cards = [
+  { k: "edu", who: "Teaching labs", title: "Affordable PCR for teaching.", text: "A PCR machine made for teaching labs." },
+  { k: "maker", who: "Makers & DIYbio", title: "Build it, open it, change it.", text: "Repairable by design, with parts that are easy to find." },
+  { k: "auto", who: "Automated labs", title: "Fits into your lab's robots.", text: "Open connections for lab software and automation." },
+  { k: "lab", who: "Research labs", title: "The second cycler that is always free.", text: "Your run data is yours, open and ready for your pipeline." },
+];
+---
+
+<section class="section aud" id="who" aria-labelledby="aud-title">
+  <div class="wrap">
+    <SectionHead label="Who it's for" title="For every bench that can't get a cycler." id="aud-title" />
+    <div class="aud__grid">
+      {
+        cards.map((c, i) => (
+          <article class="card aud__card reveal" style={`--i:${i}`}>
+            <svg viewBox="0 0 64 64" class="aud__icon draw" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              {icons[c.k].map((p, j) => (
+                <path d={p.d} stroke={p.c ?? "var(--ink)"} stroke-width="2.4" style={`--len:${p.len};--d:${j * 150}`} />
+              ))}
+            </svg>
+            <p class="eyebrow">{c.who}</p>
+            <h3>{c.title}</h3>
+            <p class="small">{c.text}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .aud__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s-5);
+  }
+  .aud__card {
+    display: grid;
+    gap: var(--s-3);
+    align-content: start;
+  }
+  .aud__icon {
+    width: 56px;
+    height: 56px;
+    margin-bottom: var(--s-2);
+  }
+  @media (max-width: 1040px) {
+    .aud__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 560px) {
+    .aud__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

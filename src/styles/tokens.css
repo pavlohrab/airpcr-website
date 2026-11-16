@@ -1,0 +1,114 @@
+/* AirPCR design tokens — the single source for colour, type, space and motion.
+   Colour follows meaning (inherited from PCRFry docs/STYLE.md):
+   heat/ember = AirPCR + hot air · cool = cooling, room air, vent · sensor = probes, live data
+   ref = competitor/reference machines (always neutral) · good/warn/bad = status only. */
+
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  /* surfaces — "Lab Dark": the black board of the hand sketch */
+  --bg: #0e1114;
+  --bg-raise: #12161a;
+  --surface: #151a1f;
+  --surface-2: #1c2329;
+  --rule: #26303a;
+  --rule-strong: #364350;
+  --grid-line: rgb(238 241 243 / 0.035);
+
+  /* ink */
+  --ink: #eef1f3;
+  --ink-2: #a9b2ba;
+  --muted: #7b8690;
+
+  /* meaning */
+  --heat: #f2794d;
+  --heat-strong: #ff8a5c;
+  --heat-ink: #1a0d07; /* text on ember buttons */
+  --heat-glow: rgb(242 121 77 / 0.35);
+  --cool: #6fa3f5;
+  --cool-glow: rgb(111 163 245 / 0.3);
+  --sensor: #f2c14e;
+  --ref: #8a96a2;
+  --compare: #a98bf0; /* a named comparison machine in a chart */
+  --good: #3bb273;
+  --warn: #e0a82e;
+  --bad: #e5534b;
+
+  /* paper plate for light renders (CAD images) on the dark page */
+  --plate: #e9ece8;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  /* "Datasheet" — white paper, black ink */
+  --bg: #fbfcfc;
+  --bg-raise: #f4f6f7;
+  --surface: #ffffff;
+  --surface-2: #f1f4f5;
+  --rule: #e3e7ea;
+  --rule-strong: #c9d0d5;
+  --grid-line: rgb(20 24 28 / 0.045);
+  --ink: #14181c;
+  --ink-2: #4a535c;
+  --muted: #6b747c;
+  --heat: #c94a20;
+  --heat-strong: #e0562a;
+  --heat-ink: #ffffff;
+  --heat-glow: rgb(224 86 42 / 0.2);
+  --cool: #2f6fde;
+  --cool-glow: rgb(47 111 222 / 0.18);
+  --sensor: #a87700;
+  --ref: #6f7c88;
+  --compare: #7b5cd6;
+  --good: #2e9e5b;
+  --warn: #b97f12;
+  --bad: #c8352b;
+  --plate: #eef1ee;
+}
+
+:root {
+  /* type families */
+  --font-display: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-hand: "Caveat", "Comic Sans MS", cursive;
+
+  /* fluid type scale */
+  --fs-hero: clamp(2.75rem, 1.6rem + 5.2vw, 6rem);
+  --fs-h2: clamp(2rem, 1.3rem + 2.8vw, 3.25rem);
+  --fs-h3: clamp(1.25rem, 1.05rem + 0.8vw, 1.6rem);
+  --fs-lead: clamp(1.125rem, 1.02rem + 0.45vw, 1.375rem);
+  --fs-body: 1.0625rem;
+  --fs-small: 0.9375rem;
+  --fs-mono: 0.875rem;
+  --fs-eyebrow: 0.75rem;
+  --fs-hand: clamp(1.25rem, 1.1rem + 0.5vw, 1.6rem);
+  --fs-stat: clamp(2.25rem, 1.6rem + 2.6vw, 3.75rem);
+
+  /* space (4 px base) */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4rem;
+  --s-9: 6rem;
+  --section-y: clamp(5rem, 3rem + 7vw, 10rem);
+
+  /* layout */
+  --max: 1240px;
+  --gutter: clamp(16px, 4vw, 24px);
+  --radius: 2px;
+  --radius-lg: 6px;
+
+  /* motion */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-fast: 180ms;
+  --t-med: 420ms;
+  --t-slow: 900ms;
+}
+/* Lab Dark is the brand default for every visitor; Datasheet Light is opt-in via the theme toggle
+   (and is what the print stylesheet uses). */

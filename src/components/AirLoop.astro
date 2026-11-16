@@ -1,0 +1,308 @@
+---
+// The AirPCR hot-air loop, drawn by hand (generated at build time from src/lib/sketch.ts).
+// Static SVG first: it reads fine with JS off. src/scripts/airloop.ts adds particles + the vent cycle.
+// Parts carry data-part so the "how it works" section can spotlight them.
+import { stroke, roundRect, circle, zigzag, type Pt } from "../lib/sketch";
+
+interface Props {
+  uid: string;
+  labels?: boolean;
+  live?: boolean; // run the particle animation
+  class?: string;
+}
+const { uid, labels = true, live = true, class: cls = "" } = Astro.props;
+
+let seed = 7;
+const s = (pts: Pt[], amp = 1.6, close = false) => stroke(pts, seed++, amp, close);
+
+const outer = s(roundRect(90, 110, 820, 380, 120), 2.2);
+const inner = s(roundRect(200, 240, 600, 130, 65), 2.0);
+
+// air centreline (unwobbled: particles follow it)
+const C = { x: 145, y: 175, w: 710, h: 255, r: 90 };
+const air = roundRect(C.x, C.y, C.w, C.h, C.r, 16);
+const airD = "M" + air.map((p) => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join("L") + "Z";
+
+const heater = s(zigzag(250, 146, 92, 58, 11), 1.0);
+const mixer = [0, 1, 2].flatMap((i) => {
+  const x = 382 + i * 24;
+  return [s([[x, 148], [x + 20, 202]], 1.0), s([[x + 20, 148], [x, 202]], 1.0)];
+});
+const straws = [0, 1, 2, 3, 4].map((i) => s([[480, 150 + i * 12.5], [542, 150 + i * 12.5]], 0.8));
+const sensor = circle(570, 175, 7, 18, 0.1);
+const tubes: { d: string; len: number; ref: boolean; k: number }[] = [];
+for (let row = 0; row < 2; row++)
+  for (let i = 0; i < 8; i++) {
+    const t = s(circle(604 + i * 21 + row * 6, 158 + row * 34, 8.2, 16, 0.15), 0.7);
+    tubes.push({ ...t, ref: row === 0 && i === 1, k: row * 8 + i });
+  }
+const lid = s(roundRect(588, 136, 190, 78, 4, 2), 1.0);
+const fan = s(circle(858, 222, 34, 30, 0.12), 1.4);
+const blades = [0, 1, 2, 3, 4, 5].map((k) => {
+  const a = (k * Math.PI) / 3 + 0.3;
+  return s([[858, 222], [858 + 30 * Math.cos(a), 222 + 30 * Math.sin(a)]], 0.8);
+});
+const shaft = s([[892, 222], [930, 222]], 0.6);
+const motor = s(roundRect(930, 200, 52, 46, 3, 2), 1.0);
+const servo = s(roundRect(18, 236, 46, 30, 3, 2), 0.8);
+const flapLink = s([[64, 251], [84, 262]], 0.6);
+const esp = s(roundRect(410, 528, 180, 54, 10, 4), 1.4);
+// sensor wires (dotted, amber): ESP32 → sensor, heater, fan, flap
+const wires = [
+  s([[500, 528], [570, 182]], 0.9),
+  s([[470, 528], [300, 206]], 0.9),
+  s([[540, 528], [850, 256]], 0.9),
+  s([[440, 528], [62, 266]], 0.9),
+];
+const arrowsBottom = [s([[700, 432], [600, 432]], 1.0), s([[420, 432], [320, 432]], 1.0)];
+const arrowHead = (x: number, y: number, dir = -1) =>
+  s([[x - dir * 12, y - 8], [x, y], [x - dir * 12, y + 8]], 0.5);
+const heads = [arrowHead(600, 432), arrowHead(320, 432)];
+const ventIn = s([[-10, 330], [60, 330]], 1.0);
+const ventInHead = arrowHead(60, 330, 1);
+const ventOut = s([[60, 300], [-10, 300]], 1.0);
+const ventOutHead = arrowHead(-10, 300, -1);
+
+let d = 0;
+const delay = () => (d += 70);
+---
+
+<svg
+  class:list={["airloop", "draw", cls]}
+  viewBox="-20 40 1020 560"
+  role="img"
+  aria-labelledby={`${uid}-t ${uid}-d`}
+  data-airloop={live ? "" : undefined}
+  data-uid={uid}
+>
+  <title id={`${uid}-t`}>How the air moves in AirPCR</title>
+  <desc id={`${uid}-d`}>
+    A fan pushes air round a loop: through a heater, a mixer and a bundle of straws, past sixteen PCR tubes and back.
+    To cool down, a flap opens and lets room air in. A small computer reads a probe in one tube and steers it all.
+  </desc>
+
+  <path id={`${uid}-air`} d={airD} fill="none" stroke="none" class="air-path" />
+
+  <!-- body -->
+  <g class="part" data-part="body" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d={outer.d} style={`--len:${outer.len};--d:${delay()}`} />
+    <path d={inner.d} style={`--len:${inner.len};--d:${delay()}`} />
+  </g>
+
+  <!-- 1 heater -->
+  <g class="part" data-part="heater" fill="none" stroke="var(--heat)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <path class="heater-coil" d={heater.d} style={`--len:${heater.len};--d:${delay()}`} />
+  </g>
+
+  <!-- 2 mixer -->
+  <g class="part" data-part="mixer" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round">
+    {mixer.map((m) => <path d={m.d} style={`--len:${m.len};--d:${delay()}`} />)}
+  </g>
+
+  <!-- 3 straws -->
+  <g class="part" data-part="straws" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round">
+    {straws.map((m) => <path d={m.d} style={`--len:${m.len};--d:${delay()}`} />)}
+  </g>
+
+  <!-- 4 tubes + heated lid + reference probe -->
+  <g class="part" data-part="tubes" fill="none" stroke-linecap="round">
+    <path d={lid.d} stroke="var(--heat)" stroke-width="1.4" stroke-dasharray="6 6" class="lid fade" style={`--d:${delay()}`} />
+    {
+      tubes.map((t) => (
+        <path
+          d={t.d}
+          stroke={t.ref ? "var(--sensor)" : "var(--ink)"}
+          fill={t.ref ? "color-mix(in srgb, var(--sensor) 70%, transparent)" : undefined}
+          stroke-width="1.6"
+          class:list={["tube", { "tube--sample": !t.ref }]}
+          style={`--len:${t.len};--d:${(d += 25)};--f:${t.k * 45}`}
+        />
+      ))
+    }
+  </g>
+  <g class="part" data-part="sensor" fill="var(--sensor)" stroke="none">
+    <path d={stroke(sensor, 99, 0.5).d} class="sensor-dot fade" style={`--d:${delay()}`} />
+  </g>
+
+  <!-- 5 fan -->
+  <g class="part" data-part="fan" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d={fan.d} style={`--len:${fan.len};--d:${delay()}`} />
+    <g class="fan-blades" style="transform-origin: 858px 222px">
+      {blades.map((b) => <path d={b.d} style={`--len:${b.len};--d:${d}`} />)}
+    </g>
+    <path d={shaft.d} stroke="var(--muted)" style={`--len:${shaft.len};--d:${delay()}`} />
+    <path d={motor.d} fill="var(--surface-2)" style={`--len:${motor.len};--d:${delay()}`} />
+  </g>
+
+  <!-- 6 vent flap -->
+  <g class="part" data-part="flap" fill="none" stroke-linecap="round">
+    <rect x="80" y="268" width="20" height="62" fill="var(--bg)" stroke="none" class="flap-gap" />
+    <line x1="90" y1="268" x2="90" y2="330" stroke="var(--cool)" stroke-width="3" class="flap" style="--len:70" />
+    <path d={servo.d} stroke="var(--ink-2)" stroke-width="1.4" style={`--len:${servo.len};--d:${delay()}`} />
+    <path d={flapLink.d} stroke="var(--ink-2)" stroke-width="1.2" style={`--len:${flapLink.len};--d:${d}`} />
+    <g class="vent-arrows">
+      <path d={ventIn.d} stroke="var(--cool)" stroke-width="2.2" style={`--len:${ventIn.len}`} />
+      <path d={ventInHead.d} stroke="var(--cool)" stroke-width="2.2" style={`--len:${ventInHead.len}`} />
+      <path d={ventOut.d} stroke="var(--heat)" stroke-width="2.2" style={`--len:${ventOut.len}`} />
+      <path d={ventOutHead.d} stroke="var(--heat)" stroke-width="2.2" style={`--len:${ventOutHead.len}`} />
+    </g>
+  </g>
+
+  <!-- return-air arrows -->
+  <g class="part" data-part="body" fill="none" stroke="var(--heat)" stroke-width="2" stroke-linecap="round" opacity="0.75">
+    {arrowsBottom.map((a) => <path d={a.d} style={`--len:${a.len};--d:${delay()}`} />)}
+    {heads.map((a) => <path d={a.d} style={`--len:${a.len};--d:${d}`} />)}
+  </g>
+
+  <!-- 7 ESP32 + wires -->
+  <g class="part" data-part="esp32" fill="none" stroke="var(--sensor)" stroke-linecap="round">
+    {wires.map((w) => <path d={w.d} stroke-width="1.2" stroke-dasharray="2 7" class="wire fade" style={`--d:${delay()}`} />)}
+    <path d={esp.d} stroke-width="2.2" fill="var(--bg)" style={`--len:${esp.len};--d:${delay()}`} />
+    <text x="500" y="563" text-anchor="middle" class="lbl lbl--esp fade" style={`--d:${d}`}>7 brain</text>
+  </g>
+
+  <!-- particles live here (added by script) -->
+  <g class="particles" aria-hidden="true"></g>
+
+  {
+    labels && (
+      <g class="labels" aria-hidden="true">
+        <text x="296" y="92" class="lbl lbl--heat fade" style={`--d:${delay()}`}>1 heater</text>
+        <text x="406" y="92" class="lbl fade" style={`--d:${delay()}`}>2 mixer</text>
+        <text x="518" y="92" class="lbl fade" style={`--d:${delay()}`}>3 straws</text>
+        <text x="683" y="92" class="lbl fade" style={`--d:${delay()}`}>4 · 16 tubes</text>
+        <text x="956" y="186" class="lbl fade" style={`--d:${delay()}`}>5 fan</text>
+        <text x="42" y="222" class="lbl lbl--cool fade" style={`--d:${delay()}`}>6 vent</text>
+      </g>
+    )
+  }
+</svg>
+
+<style>
+  .airloop {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .airloop :global(.lbl) {
+    font-family: var(--font-hand);
+    font-size: 27px;
+    font-weight: 500;
+    fill: var(--ink);
+    text-anchor: middle;
+  }
+  .airloop :global(.lbl--heat) {
+    fill: var(--heat);
+  }
+  .airloop :global(.lbl--cool) {
+    fill: var(--cool);
+  }
+  .airloop :global(.lbl--sensor) {
+    fill: var(--sensor);
+  }
+  .airloop :global(.lbl--small) {
+    font-size: 22px;
+  }
+  .airloop :global(.lbl--esp) {
+    fill: var(--sensor);
+    font-size: 28px;
+  }
+  .part {
+    transition: opacity var(--t-med) var(--ease);
+  }
+  /* the 16 tubes fill one after another once the loop has drawn */
+  .tube--sample {
+    fill: var(--heat);
+    fill-opacity: 0.3;
+  }
+  :global(.js) .airloop .tube--sample {
+    fill-opacity: 0;
+  }
+  :global(.js) .airloop:global(.is-in) .tube--sample {
+    fill-opacity: 0.3;
+    transition:
+      stroke-dashoffset 1.4s var(--ease-in-out) calc(var(--d, 0) * 1ms),
+      fill-opacity 350ms var(--ease) calc(1500ms + var(--f, 0) * 1ms);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.js) .airloop .tube--sample {
+      fill-opacity: 0.3;
+    }
+  }
+  .flap {
+    transform-origin: 90px 268px;
+    transform-box: view-box;
+    transition: transform 600ms var(--ease);
+  }
+  .vent-arrows {
+    opacity: 0;
+    transition: opacity 500ms var(--ease);
+  }
+  .heater-coil {
+    transition: filter 400ms var(--ease);
+  }
+  /* states driven by airloop.ts */
+  .airloop:global(.is-venting) .flap {
+    transform: rotate(62deg);
+  }
+  .airloop:global(.is-venting) .vent-arrows {
+    opacity: 1;
+  }
+  .airloop:global(.is-heating) .heater-coil {
+    filter: drop-shadow(0 0 6px var(--heat)) drop-shadow(0 0 14px var(--heat-glow));
+  }
+  .fan-blades {
+    animation: spin 0.9s linear infinite;
+    animation-play-state: paused;
+  }
+  .airloop:global(.is-running) .fan-blades {
+    animation-play-state: running;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  /* spotlight (how-it-works section) */
+  .airloop:global([data-focus]) .part {
+    opacity: 0.18;
+  }
+  .airloop:global([data-focus="heater"]) .part[data-part="heater"],
+  .airloop:global([data-focus="mixer"]) .part[data-part="mixer"],
+  .airloop:global([data-focus="straws"]) .part[data-part="straws"],
+  .airloop:global([data-focus="tubes"]) .part[data-part="tubes"],
+  .airloop:global([data-focus="tubes"]) .part[data-part="sensor"],
+  .airloop:global([data-focus="fan"]) .part[data-part="fan"],
+  .airloop:global([data-focus="flap"]) .part[data-part="flap"],
+  .airloop:global([data-focus="esp32"]) .part[data-part="esp32"],
+  .airloop:global([data-focus="esp32"]) .part[data-part="sensor"],
+  /* the brain step lights up everything it is wired to */
+  .airloop:global([data-focus="esp32"]) .part[data-part="heater"],
+  .airloop:global([data-focus="esp32"]) .part[data-part="fan"],
+  .airloop:global([data-focus="esp32"]) .part[data-part="flap"] {
+    opacity: 1;
+  }
+  .airloop:global([data-focus="esp32"]) .wire {
+    stroke-width: 2;
+    stroke-dasharray: 3 6;
+    animation: signal 0.9s linear infinite;
+  }
+  @keyframes signal {
+    to {
+      stroke-dashoffset: -18;
+    }
+  }
+  .airloop:global([data-focus="tubes"]) .sensor-dot,
+  .airloop:global([data-focus="esp32"]) .sensor-dot,
+  .airloop:global([data-focus="tubes"]) .tube[stroke="var(--sensor)"] {
+    filter: drop-shadow(0 0 5px var(--sensor)) drop-shadow(0 0 12px var(--sensor));
+  }
+  .airloop:global([data-focus]) .part[data-part="body"] {
+    opacity: 0.45;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fan-blades {
+      animation: none;
+    }
+  }
+</style>

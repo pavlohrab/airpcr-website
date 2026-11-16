@@ -1,0 +1,154 @@
+---
+import AirLoop from "../components/AirLoop.astro";
+import SectionHead from "../components/SectionHead.astro";
+
+const steps = [
+  { part: "heater", title: "Heater", text: "A heat-gun element warms the air." },
+  { part: "mixer", title: "Mixer", text: "A mixer blends the air, so there are no hot spots." },
+  { part: "straws", title: "Straws", text: "A bundle of straws calms the flow." },
+  {
+    part: "tubes",
+    title: "Tubes",
+    text: "The air sweeps past sixteen PCR tubes. One of them holds a thermal probe.",
+    note: "the probe tube",
+  },
+  { part: "fan", title: "Fan", text: "A fan keeps the air going round." },
+  { part: "flap", title: "Vent", text: "To cool down, a flap opens and lets room air in.", note: "no Peltier, nothing to wear out" },
+  {
+    part: "esp32",
+    title: "Brain",
+    text: "A microcontroller reads the probe ten times a second and steers the heater, fan and flap.",
+    note: "like cruise control for heat",
+  },
+];
+---
+
+<section class="section how" id="how" aria-labelledby="how-title">
+  <div class="wrap">
+    <SectionHead label="How it works" title="One loop of moving air." id="how-title">
+      <p class="lead">Air holds almost no heat, so it can change temperature fast. Seven simple parts do the rest.</p>
+    </SectionHead>
+
+    <div class="how__grid">
+      <div class="how__stage">
+        <div class="how__sticky">
+          <AirLoop uid="how" />
+        </div>
+      </div>
+      <ol class="how__steps">
+        {
+          steps.map((s, i) => (
+            <li class="how__step" data-step={s.part}>
+              <span class="how__n mono">{i + 1}</span>
+              <div class="how__body">
+                <h3>{s.title}</h3>
+                <p>{s.text}</p>
+                {s.note && (
+                  <p class="hand how__note" aria-hidden="true">
+                    {s.note}
+                  </p>
+                )}
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</section>
+
+<script>
+  const svg = document.querySelector<SVGSVGElement>('svg[data-uid="how"]');
+  const steps = document.querySelectorAll<HTMLElement>(".how__step");
+  if (svg && steps.length) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          steps.forEach((s) => s.classList.toggle("is-active", s === e.target));
+          svg.dataset.focus = (e.target as HTMLElement).dataset.step;
+        }
+      },
+      { rootMargin: "-45% 0px -45% 0px" },
+    );
+    steps.forEach((s) => io.observe(s));
+    const out = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) delete svg.dataset.focus;
+    });
+    out.observe(document.querySelector(".how__steps")!);
+  }
+</script>
+
+<style>
+  .how__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: clamp(2rem, 5vw, 5rem);
+  }
+  .how__sticky {
+    position: sticky;
+    top: 120px;
+  }
+  .how__steps {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    padding-block: 3rem 12rem;
+  }
+  .how__step {
+    display: grid;
+    grid-template-columns: 2.25rem 1fr;
+    gap: var(--s-3);
+    padding-block: clamp(1.75rem, 7vh, 3.5rem);
+    opacity: 0.35;
+    transition: opacity var(--t-med) var(--ease);
+  }
+  .how__step.is-active,
+  :global(html:not(.js)) .how__step {
+    opacity: 1;
+  }
+  .how__n {
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border: 1px solid var(--heat);
+    border-radius: 50%;
+    color: var(--heat);
+    font-size: 0.8125rem;
+  }
+  .how__body {
+    display: grid;
+    gap: var(--s-2);
+  }
+  .how__body p {
+    color: var(--ink-2);
+    font-size: 1.125rem;
+  }
+  .how__body p.how__note {
+    color: var(--heat);
+    font-size: 1.35rem;
+    transform: rotate(-2deg);
+    transform-origin: left;
+  }
+  @media (max-width: 900px) {
+    .how__grid {
+      grid-template-columns: 1fr;
+    }
+    .how__sticky {
+      top: 68px;
+      z-index: 2;
+      padding-block: var(--s-3);
+      background: color-mix(in srgb, var(--bg) 92%, transparent);
+      backdrop-filter: blur(8px);
+    }
+    .how__steps {
+      padding-block: 0 6rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .how__step {
+      opacity: 1;
+    }
+  }
+</style>

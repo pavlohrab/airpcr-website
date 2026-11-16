@@ -1,0 +1,26 @@
+---
+interface Props {
+  label?: string;
+  title: string;
+  id?: string;
+}
+const { label, title, id } = Astro.props;
+---
+
+<header class="sh reveal">
+  {label && <p class="eyebrow">{label}</p>}
+  <h2 id={id}>{title}</h2>
+  <slot />
+</header>
+
+<style>
+  .sh {
+    display: grid;
+    gap: var(--s-4);
+    margin-bottom: var(--s-7);
+    max-width: 62rem;
+  }
+  .sh :global(p.lead) {
+    max-width: 52ch;
+  }
+</style>

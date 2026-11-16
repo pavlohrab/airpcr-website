@@ -1,0 +1,56 @@
+---
+import Wordmark from "./Wordmark.astro";
+const base = import.meta.env.BASE_URL;
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="wrap footer__in">
+    <a href={base} class="footer__brand" aria-label="AirPCR home"><Wordmark size={18} /></a>
+    <nav class="footer__links mono" aria-label="Footer">
+      <a href={`${base}#how`}>How it works</a>
+      <a href={`${base}team/`}>Team</a>
+      <a href={`${base}#access`}>Get in touch</a>
+    </nav>
+    <p class="mono footer__small">© {year} AirPCR · In development · Numbers are simulated until measured</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--rule);
+    padding-block: var(--s-6);
+  }
+  .footer__in {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-3) var(--s-6);
+  }
+  .footer__brand {
+    text-decoration: none;
+  }
+  .footer__links {
+    display: flex;
+    gap: var(--s-5);
+    font-size: 0.8125rem;
+  }
+  .footer__links a {
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+  .footer__links a:hover {
+    color: var(--heat);
+  }
+  .footer__small {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--muted);
+    max-width: none;
+  }
+  @media (max-width: 700px) {
+    .footer__small {
+      margin-left: 0;
+    }
+  }
+</style>

@@ -1,0 +1,74 @@
+---
+// Credibility band on the home page: who is behind AirPCR, linking to /team.
+import team from "../data/team.json";
+const base = import.meta.env.BASE_URL;
+---
+
+<section class="teaser" aria-labelledby="teaser-title">
+  <div class="wrap teaser__in reveal">
+    <ul class="teaser__faces">
+      {
+        team.people.map((p) => (
+          <li>
+            <a href={p.photoLink || `${base}team/`} target="_blank" rel="noopener" aria-label={`${p.name} on LinkedIn`}>
+              <img src={`${base}${p.photo}`} alt="" width="96" height="112" loading="lazy" />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="teaser__copy">
+      <h2 id="teaser-title">Built by scientists, for scientists.</h2>
+      <p>A microbiologist who runs PCR every day, and a bioinformatician who builds the software.</p>
+    </div>
+    <a class="btn" href={`${base}team/`}>Meet the team <span class="arrow">→</span></a>
+  </div>
+</section>
+
+<style>
+  .teaser {
+    border-top: 1px solid var(--rule);
+    padding-block: var(--s-8);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--heat) 6%, transparent), transparent 60%);
+  }
+  .teaser__in {
+    display: flex;
+    align-items: center;
+    gap: var(--s-6);
+    flex-wrap: wrap;
+  }
+  .teaser__faces {
+    display: flex;
+    list-style: none;
+    padding: 0;
+  }
+  .teaser__faces li + li {
+    margin-left: -18px;
+  }
+  .teaser__faces img {
+    width: 84px;
+    height: 84px;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 50%;
+    border: 3px solid var(--bg);
+    filter: grayscale(1);
+    transition: filter var(--t-med) var(--ease), transform var(--t-med) var(--ease);
+  }
+  .teaser__faces a:hover img,
+  .teaser__faces a:focus-visible img {
+    filter: none;
+    transform: translateY(-3px);
+  }
+  .teaser__copy {
+    flex: 1 1 320px;
+    display: grid;
+    gap: var(--s-1);
+  }
+  .teaser__copy h2 {
+    font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.25rem);
+  }
+  .teaser__copy p {
+    color: var(--ink-2);
+  }
+</style>

@@ -1,0 +1,17 @@
+---
+// Source tag: every number on the site says where it comes from.
+interface Props {
+  source: "simulated" | "measured" | "published" | "design" | string;
+  title?: string;
+}
+const { source, title } = Astro.props;
+const tips: Record<string, string> = {
+  simulated: "From our physics model (uncalibrated). Not measured yet.",
+  measured: "Measured on hardware.",
+  published: "Published by the maker or in the literature.",
+  design: "A design choice.",
+  planned: "Planned for the product; not built yet.",
+};
+---
+
+<span class={`tag tag--${source}`} title={title ?? tips[source] ?? source}>{source === "design" ? "spec" : source}</span>

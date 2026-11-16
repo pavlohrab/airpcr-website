@@ -1,0 +1,201 @@
+---
+import SectionHead from "../components/SectionHead.astro";
+import { stroke, roundRect } from "../lib/sketch";
+const base = import.meta.env.BASE_URL;
+
+const steps = [
+  {
+    s: "done",
+    when: "Q3 2026 · done",
+    title: "First prototype, in an air fryer",
+    text: "A kitchen air fryer ran a real PCR. The gel showed the right DNA band.",
+    photos: [
+      { src: "img/v1-setup.webp", alt: "The first setup: PCR tubes in an air fryer, a Bluetooth thermometer and a laptop running Home Assistant", w: 900, h: 533, note: "the setup" },
+      { src: "img/v1-gel.webp", alt: "Gel from the air-fryer PCR: the expected 357 base-pair band in both sample lanes, none in the control", w: 700, h: 676, note: "it worked ✓" },
+    ],
+  },
+  { s: "done", when: "Q4 2026 · done", title: "The machine, simulated", text: "We designed a purpose-built machine in a computer first." },
+  { s: "now", when: "Next", title: "Second prototype", text: "Build it, test it, run real PCR on it." },
+  { s: "next", when: "Then", title: "Open integration", text: "Open, FAIR data, AI checks and links to lab automation." },
+  { s: "next", when: "Later", title: "Beta units", text: "A first small batch for labs and early users." },
+  { s: "next", when: "Research", title: "Capillary fast mode", text: "Thin glass tubes for even faster runs." },
+];
+// hand-drawn photo frames
+const frame = (w: number, h: number, seed: number) => stroke(roundRect(3, 3, w - 6, h - 6, 6, 3), seed, 1.6);
+---
+
+<section class="section road" id="roadmap" aria-labelledby="road-title">
+  <div class="wrap">
+    <SectionHead label="Roadmap" title="From a kitchen to the lab." id="road-title" />
+    <ol class="road__list">
+      {
+        steps.map((st, i) => (
+          <li class:list={["road__step reveal", `is-${st.s}`, { "has-photos": st.photos }]} style={`--i:${i}`}>
+            <span class="road__dot" aria-hidden="true" />
+            <p class="mono road__when">{st.when}</p>
+            <h3>{st.title}</h3>
+            <p class="small">{st.text}</p>
+            {st.photos && (
+              <div class="road__photos">
+                {st.photos.map((p, k) => {
+                  const f = frame(300, Math.round((300 * p.h) / p.w), 40 + k);
+                  return (
+                    <figure class="photo" style={`--r:${k ? 2 : -2}deg`}>
+                      <img src={`${base}${p.src}`} alt={p.alt} width={p.w} height={p.h} loading="lazy" decoding="async" />
+                      <svg class="photo__frame" viewBox={`0 0 300 ${Math.round((300 * p.h) / p.w)}`} preserveAspectRatio="none" aria-hidden="true">
+                        <path d={f.d} fill="none" stroke="var(--ink)" stroke-width="2" vector-effect="non-scaling-stroke" />
+                      </svg>
+                      <figcaption class="hand">{p.note}</figcaption>
+                    </figure>
+                  );
+                })}
+              </div>
+            )}
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .road__list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 2fr repeat(5, minmax(0, 1fr));
+    gap: var(--s-5);
+    position: relative;
+  }
+  /* the "thermometer" track heats up to the current step */
+  .road__list::before,
+  .road__list::after {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--rule-strong);
+  }
+  .road__list::after {
+    right: auto;
+    width: 54%;
+    background: linear-gradient(90deg, var(--heat) 70%, var(--sensor));
+    box-shadow: 0 0 10px var(--heat-glow);
+  }
+  .road__step {
+    position: relative;
+    display: grid;
+    gap: var(--s-2);
+    align-content: start;
+    padding-top: var(--s-6);
+  }
+  .road__dot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--rule-strong);
+    z-index: 1;
+  }
+  .is-done .road__dot {
+    background: var(--heat);
+    border-color: var(--heat);
+  }
+  .is-now .road__dot {
+    border-color: var(--sensor);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--sensor) 20%, transparent);
+    animation: beat 2s ease-in-out infinite;
+  }
+  @keyframes beat {
+    50% {
+      box-shadow: 0 0 0 8px color-mix(in srgb, var(--sensor) 0%, transparent);
+    }
+  }
+  .road__when {
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .is-done .road__when {
+    color: var(--heat);
+  }
+  .is-now .road__when {
+    color: var(--sensor);
+  }
+  .road__step h3 {
+    font-size: 1.15rem;
+  }
+  .is-next h3 {
+    color: var(--ink-2);
+  }
+  .road__photos {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: var(--s-4);
+    margin-top: var(--s-4);
+    align-items: start;
+  }
+  .photo {
+    position: relative;
+    display: grid;
+    gap: var(--s-1);
+    transform: rotate(var(--r));
+    transition: transform var(--t-med) var(--ease);
+  }
+  .photo:hover {
+    transform: rotate(0) scale(1.03);
+  }
+  .photo img {
+    width: 100%;
+    background: #fff;
+    border-radius: 6px;
+    padding: 6px;
+  }
+  .photo__frame {
+    position: absolute;
+    inset: -4px -4px auto;
+    width: calc(100% + 8px);
+    height: calc(100% - 1.6rem + 8px);
+    pointer-events: none;
+  }
+  .photo figcaption {
+    font-size: 1.25rem;
+    text-align: center;
+  }
+  @media (max-width: 1100px) {
+    .road__list {
+      grid-template-columns: 1fr;
+      gap: var(--s-6);
+      padding-left: var(--s-6);
+    }
+    .road__list::before,
+    .road__list::after {
+      top: 0;
+      bottom: 0;
+      left: 6px;
+      width: 2px;
+      height: auto;
+    }
+    .road__list::after {
+      bottom: auto;
+      height: 52%;
+      background: linear-gradient(180deg, var(--heat) 80%, var(--sensor));
+    }
+    .road__step {
+      padding-top: 0;
+    }
+    .road__dot {
+      left: calc(-1 * var(--s-6));
+      top: 4px;
+    }
+    .road__photos {
+      max-width: 560px;
+    }
+  }
+</style>

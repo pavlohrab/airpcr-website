@@ -1,0 +1,280 @@
+---
+// Team / founders page. Content lives in src/data/team.json (placeholders until the founders fill it in).
+// Portraits: put square photos in public/img/team/ and set "photo": "img/team/name.webp".
+import Base from "../layouts/Base.astro";
+import Access from "../sections/Access.astro";
+import team from "../data/team.json";
+import { stroke, roundRect, circle } from "../lib/sketch";
+
+const base = import.meta.env.BASE_URL;
+const initials = (n: string) =>
+  n
+    .split(/\s+/)
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+const frame = (seed: number) => stroke(roundRect(4, 4, 232, 272, 10, 4), seed, 2.2);
+const ring = (seed: number) => stroke(circle(120, 140, 62, 34, 0.12), seed, 1.8);
+const linkLabel: Record<string, string> = {
+  email: "Email",
+  linkedin: "LinkedIn",
+  scholar: "Google Scholar",
+  website: "Website",
+  wur: "WUR profile",
+};
+const href = (k: string, v: string) => (k === "email" ? `mailto:${v}` : v);
+---
+
+<Base title="Team — AirPCR" description="The people building AirPCR, a hot-air PCR thermocycler.">
+  <section class="section team-hero">
+    <div class="wrap team-hero__in">
+      <p class="eyebrow reveal">Built by scientists, for scientists</p>
+      <h1 class="reveal" style="--i:1">The people behind <span class="accent">the air.</span></h1>
+      <p class="lead reveal" style="--i:2">{team.mission}</p>
+    </div>
+  </section>
+
+  <section class="section people" aria-label="Founders">
+    <div class="wrap people__grid">
+      {
+        team.people.map((p, i) => {
+          const f = frame(70 + i);
+          const r = ring(90 + i);
+          const links = Object.entries(p.links).filter(([, v]) => v);
+          return (
+            <article class="person reveal" style={`--i:${i};--tilt:${[-1.2, 0.8, -0.5, 1][i % 4]}deg`}>
+              <a
+                class="person__portrait"
+                href={p.photoLink || undefined}
+                target="_blank"
+                rel="noopener"
+                aria-label={`${p.name} on LinkedIn`}
+              >
+                {p.photo ? (
+                  <img src={`${base}${p.photo}`} alt={`Portrait of ${p.name}`} width="480" height="560" loading="lazy" />
+                ) : (
+                  <svg viewBox="0 0 240 280" class="person__ph draw" aria-hidden="true">
+                    <path d={r.d} fill="none" stroke="var(--heat)" stroke-width="2" style={`--len:${r.len}`} />
+                    <text x="120" y="152" text-anchor="middle">
+                      {initials(p.name)}
+                    </text>
+                  </svg>
+                )}
+                <svg class="person__frame draw" viewBox="0 0 240 280" preserveAspectRatio="none" aria-hidden="true">
+                  <path d={f.d} fill="none" stroke="var(--ink)" stroke-width="2" style={`--len:${f.len}`} />
+                </svg>
+                {p.photoLink && <span class="person__chip mono">LinkedIn ↗</span>}
+              </a>
+              <p class="hand person__note" aria-hidden="true">
+                {p.note}
+              </p>
+              <h2 class="person__name">{p.name}</h2>
+              <p class="mono person__role">{p.role}</p>
+              <p class="person__creds">{p.creds}</p>
+              <p class="person__why">{p.plain}</p>
+              {links.length > 0 && (
+                <p class="person__links mono">
+                  {links.map(([k, v]) => (
+                    <a href={href(k, v as string)} rel="noopener">
+                      {linkLabel[k] ?? k}
+                    </a>
+                  ))}
+                </p>
+              )}
+            </article>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <section class="section principles" aria-labelledby="pr-title">
+    <div class="wrap">
+      <p class="eyebrow reveal">How we work</p>
+      <h2 id="pr-title" class="reveal" style="--i:1">Three rules.</h2>
+      <ol class="pr__list">
+        {
+          team.principles.map((p, i) => (
+            <li class="card reveal" style={`--i:${i}`}>
+              <span class="pr__n mono">{i + 1}</span>
+              <h3>{p.title}</h3>
+              <p class="small">{p.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  {team.supporters.length > 0 && (
+  <section class="section supporters" aria-labelledby="sup-title">
+    <div class="wrap">
+      <p id="sup-title" class="eyebrow reveal">Supported by</p>
+      <ul class="sup__row">
+        {team.supporters.map((s, i) => <li class="reveal" style={`--i:${i}`}>{s}</li>)}
+      </ul>
+    </div>
+  </section>
+  )}
+
+  <Access loop={false} />
+</Base>
+
+<style>
+  .team-hero {
+    padding-block: clamp(3rem, 2rem + 5vw, 7rem) var(--s-6);
+  }
+  .team-hero__in {
+    display: grid;
+    gap: var(--s-5);
+  }
+  .team-hero + .section {
+    border-top: 0;
+    padding-top: var(--s-6);
+  }
+  .people__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
+    gap: clamp(2.5rem, 5vw, 5rem);
+  }
+  .person {
+    display: grid;
+    gap: var(--s-2);
+    align-content: start;
+  }
+  .person__creds {
+    font-size: var(--fs-small);
+    color: var(--ink);
+  }
+  .person__portrait {
+    position: relative;
+    display: block;
+    width: min(100%, 300px);
+    aspect-ratio: 240 / 280;
+    transform: rotate(var(--tilt));
+    transition: transform var(--t-med) var(--ease);
+  }
+  .person:hover .person__portrait {
+    transform: rotate(0);
+  }
+  .person__chip {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    padding: 4px 8px;
+    background: var(--heat);
+    color: var(--heat-ink);
+    font-size: 0.6875rem;
+    border-radius: var(--radius);
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity var(--t-fast) var(--ease),
+      transform var(--t-fast) var(--ease);
+  }
+  .person__portrait:hover .person__chip,
+  .person__portrait:focus-visible .person__chip {
+    opacity: 1;
+    transform: none;
+  }
+  .person:hover .person__portrait img {
+    filter: none;
+  }
+  .person__portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    /* duotone: greyscale with an ember tint */
+    filter: grayscale(1) contrast(1.08);
+    transition: filter var(--t-med) var(--ease);
+  }
+  .person__ph {
+    width: 100%;
+    height: 100%;
+    background: var(--surface);
+    border-radius: 10px;
+  }
+  .person__ph text {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 44px;
+    fill: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .person__frame {
+    position: absolute;
+    inset: -6px;
+    width: calc(100% + 12px);
+    height: calc(100% + 12px);
+    pointer-events: none;
+  }
+  .person__note {
+    margin-top: var(--s-2);
+    transform: rotate(-2deg);
+    transform-origin: left;
+  }
+  .person__name {
+    font-size: 1.6rem;
+  }
+  .person__role {
+    color: var(--heat);
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+  }
+  .person__why {
+    color: var(--ink-2);
+    font-size: 1.0625rem;
+    max-width: 46ch;
+  }
+  .person__links {
+    display: flex;
+    gap: var(--s-4);
+    font-size: 0.8125rem;
+  }
+  .person__links a {
+    color: var(--ink-2);
+  }
+  .person__links a:hover {
+    color: var(--heat);
+  }
+  .principles h2 {
+    margin: var(--s-3) 0 var(--s-6);
+  }
+  .pr__list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s-5);
+  }
+  .pr__list li {
+    display: grid;
+    gap: var(--s-3);
+    align-content: start;
+  }
+  .pr__n {
+    color: var(--heat);
+  }
+  .sup__row {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-4);
+    margin-top: var(--s-5);
+  }
+  .sup__row li {
+    padding: var(--s-4) var(--s-6);
+    border: 1px dashed var(--rule-strong);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+  }
+  @media (max-width: 860px) {
+    .pr__list {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

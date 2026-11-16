@@ -1,0 +1,40 @@
+---
+// "Air" light + "PCR" bold. The mark (option B) is one PCR cycle drawn as a single line: hot, cold, warm.
+interface Props {
+  size?: number;
+}
+const { size = 22 } = Astro.props;
+---
+
+<span class="wm" style={`--wm:${size}px`}>
+  <svg class="wm__mark" viewBox="0 0 64 64" aria-hidden="true" fill="none">
+    <path d="M6 46 15 16h9l9 34h6l6-18h13" stroke="var(--heat)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  </svg>
+  <span class="wm__text"><span class="wm__air">Air</span><span class="wm__pcr">PCR</span></span>
+</span>
+
+<style>
+  .wm {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--wm) * 0.4);
+    color: var(--ink);
+  }
+  .wm__mark {
+    width: calc(var(--wm) * 1.25);
+    height: auto;
+  }
+  .wm__text {
+    font-family: var(--font-display);
+    font-size: var(--wm);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .wm__air {
+    font-weight: 500;
+    color: var(--ink-2);
+  }
+  .wm__pcr {
+    font-weight: 700;
+  }
+</style>
