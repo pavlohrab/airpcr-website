@@ -64,7 +64,7 @@ const ventOut = s([[60, 300], [-10, 300]], 1.0);
 const ventOutHead = arrowHead(-10, 300, -1);
 
 let d = 0;
-const delay = () => (d += 70);
+const delay = () => (d += 28); // ms between strokes of the draw-on
 ---
 
 <svg
@@ -115,7 +115,7 @@ const delay = () => (d += 70);
           fill={t.ref ? "color-mix(in srgb, var(--sensor) 70%, transparent)" : undefined}
           stroke-width="1.6"
           class:list={["tube", { "tube--sample": !t.ref }]}
-          style={`--len:${t.len};--d:${(d += 25)};--f:${t.k * 45}`}
+          style={`--len:${t.len};--d:${(d += 10)};--f:${t.k * 45}`}
         />
       ))
     }
@@ -167,18 +167,25 @@ const delay = () => (d += 70);
   {
     labels && (
       <g class="labels" aria-hidden="true">
-        <text x="296" y="92" class="lbl lbl--heat fade" style={`--d:${delay()}`}>1 heater</text>
-        <text x="406" y="92" class="lbl fade" style={`--d:${delay()}`}>2 mixer</text>
-        <text x="518" y="92" class="lbl fade" style={`--d:${delay()}`}>3 straws</text>
-        <text x="683" y="92" class="lbl fade" style={`--d:${delay()}`}>4 · 16 tubes</text>
-        <text x="956" y="186" class="lbl fade" style={`--d:${delay()}`}>5 fan</text>
-        <text x="42" y="222" class="lbl lbl--cool fade" style={`--d:${delay()}`}>6 vent</text>
+        <text x="296" y="92" class="lbl lbl--heat fade" data-for="heater" style={`--d:${delay()}`}>1 heater</text>
+        <text x="406" y="92" class="lbl fade" data-for="mixer" style={`--d:${delay()}`}>2 mixer</text>
+        <text x="518" y="92" class="lbl fade" data-for="straws" style={`--d:${delay()}`}>3 straws</text>
+        <text x="683" y="92" class="lbl fade" data-for="tubes" style={`--d:${delay()}`}>4 · 16 tubes</text>
+        <text x="956" y="186" class="lbl fade" data-for="fan" style={`--d:${delay()}`}>5 fan</text>
+        <text x="42" y="222" class="lbl lbl--cool fade" data-for="flap" style={`--d:${delay()}`}>6 vent</text>
       </g>
     )
   }
 </svg>
 
 <style>
+  /* a quicker draw-on than other figures: the whole loop appears in about 2 s */
+  .airloop:global(.draw.is-in) [style*="--len"] {
+    transition-duration: 0.7s;
+  }
+  .airloop:global(.draw) :global(.fade) {
+    transition-delay: calc(var(--d, 0) * 1ms + 350ms);
+  }
   .airloop {
     width: 100%;
     height: auto;

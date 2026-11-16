@@ -28,83 +28,155 @@ const steps = [
     <SectionHead label="How it works" title="One loop of moving air." id="how-title">
       <p class="lead">Seven parts and no metal block.</p>
     </SectionHead>
+  </div>
 
-    <div class="how__grid">
-      <div class="how__stage">
-        <div class="how__sticky">
+  <!-- Pinned walk-through: the track is tall, the panel inside it stays on screen,
+       and scrolling through the track draws the parts one by one. -->
+  <div class="how__track" style={`--steps:${steps.length}`} data-how>
+    <div class="how__pin">
+      <div class="wrap how__grid">
+        <div class="how__stage">
           <AirLoop uid="how" />
+          <ol class="how__dots" aria-hidden="true">{steps.map(() => <li />)}</ol>
         </div>
+        <ol class="how__steps">
+          {
+            steps.map((s, i) => (
+              <li class="how__step" data-step={s.part}>
+                <span class="how__n mono">{i + 1}</span>
+                <div class="how__body">
+                  <h3>{s.title}</h3>
+                  <p>{s.text}</p>
+                  {s.note && (
+                    <p class="hand how__note" aria-hidden="true">
+                      {s.note}
+                    </p>
+                  )}
+                </div>
+              </li>
+            ))
+          }
+        </ol>
       </div>
-      <ol class="how__steps">
-        {
-          steps.map((s, i) => (
-            <li class="how__step" data-step={s.part}>
-              <span class="how__n mono">{i + 1}</span>
-              <div class="how__body">
-                <h3>{s.title}</h3>
-                <p>{s.text}</p>
-                {s.note && (
-                  <p class="hand how__note" aria-hidden="true">
-                    {s.note}
-                  </p>
-                )}
-              </div>
-            </li>
-          ))
-        }
-      </ol>
     </div>
   </div>
 </section>
 
 <script>
+  // While the panel is pinned, the scroll position through the track picks the step (0–6)
+  // and draws each part of the loop as you scroll into its step. Scrolling back un-draws it.
+  const track = document.querySelector<HTMLElement>("[data-how]");
   const svg = document.querySelector<SVGSVGElement>('svg[data-uid="how"]');
-  const steps = document.querySelectorAll<HTMLElement>(".how__step");
-  if (svg && steps.length) {
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (!e.isIntersecting) continue;
-          steps.forEach((s) => s.classList.toggle("is-active", s === e.target));
-          svg.dataset.focus = (e.target as HTMLElement).dataset.step;
-        }
-      },
-      { rootMargin: "-45% 0px -45% 0px" },
-    );
-    steps.forEach((s) => io.observe(s));
-    const out = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting) delete svg.dataset.focus;
+  const steps = [...document.querySelectorAll<HTMLElement>(".how__step")];
+  const dots = [...document.querySelectorAll<HTMLElement>(".how__dots li")];
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (track && svg && steps.length && !still) {
+    track.classList.add("is-pinned");
+
+    // the strokes and faded bits (labels, wires, lid) that belong to each step's part
+    const partsOf = (key: string) => {
+      const keys = key === "tubes" ? ["tubes", "sensor"] : [key];
+      const els = keys.flatMap((k) =>
+        [...svg.querySelectorAll<SVGGElement>(`[data-part="${k}"]`)].flatMap((g) => [...g.querySelectorAll<SVGElement>("path, line, text")]),
+      );
+      return {
+        strokes: els.filter((e) => e.style.getPropertyValue("--len")).map((e) => ({ e, len: parseFloat(e.style.getPropertyValue("--len")) })),
+        fades: [...els.filter((e) => e.classList.contains("fade")), ...svg.querySelectorAll<SVGElement>(`[data-for="${key}"]`)],
+      };
+    };
+    const parts = steps.map((s) => partsOf(s.dataset.step!));
+    parts.forEach(({ strokes, fades }) => {
+      strokes.forEach(({ e }) => (e.style.transition = "none"));
+      fades.forEach((e) => (e.style.transition = "opacity 150ms linear"));
     });
-    out.observe(document.querySelector(".how__steps")!);
+
+    let current = -1;
+    let queued = false;
+    const update = () => {
+      queued = false;
+      const r = track.getBoundingClientRect();
+      const pin = track.firstElementChild!.getBoundingClientRect();
+      const top = parseFloat(getComputedStyle(track.firstElementChild!).top) || 0;
+      // 0 when the panel pins, 1 when it is about to scroll away
+      const p = Math.min(1, Math.max(0, (top - r.top) / Math.max(1, r.height - pin.height)));
+      const t = p * steps.length; // 0 … 7
+      const idx = r.top > top ? -1 : Math.min(steps.length - 1, Math.floor(t));
+
+      // part i draws during the first 60 % of its step, starting a little early
+      parts.forEach(({ strokes, fades }, i) => {
+        const f = Math.min(1, Math.max(0, (t - i + 0.3) / 0.7));
+        strokes.forEach(({ e, len }) => (e.style.strokeDashoffset = String(len * (1 - f))));
+        fades.forEach((e) => (e.style.opacity = f > 0.6 ? "1" : "0"));
+      });
+
+      if (idx === current) return;
+      current = idx;
+      steps.forEach((s, i) => s.classList.toggle("is-active", i === idx));
+      dots.forEach((d, i) => d.classList.toggle("is-on", i <= idx));
+      if (idx >= 0) svg.dataset.focus = steps[idx].dataset.step;
+      else delete svg.dataset.focus;
+    };
+    const onScroll = () => {
+      if (!queued) (queued = true), requestAnimationFrame(update);
+    };
+    addEventListener("scroll", onScroll, { passive: true });
+    addEventListener("resize", onScroll);
+    update();
   }
 </script>
 
 <style>
+  .how {
+    padding-bottom: 0;
+  }
+  /* Pinned walk-through. --per-step is the scroll length of one step: the "speed" of the tour. */
+  .how__track {
+    --per-step: 55svh;
+    --nav-h: 68px;
+  }
+  .how__track:not(.is-pinned) .how__pin {
+    padding-bottom: var(--section-y);
+  }
+  .how__track.is-pinned {
+    height: calc(100svh - var(--nav-h) + var(--steps) * var(--per-step));
+    margin-bottom: var(--section-y);
+  }
+  .is-pinned .how__pin {
+    position: sticky;
+    top: var(--nav-h);
+    height: calc(100svh - var(--nav-h));
+    display: grid;
+    align-items: center;
+  }
   .how__grid {
     display: grid;
     grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
     gap: clamp(2rem, 5vw, 5rem);
+    align-items: center;
   }
-  .how__sticky {
-    position: sticky;
-    top: 120px;
+  .how__stage {
+    display: grid;
+    gap: var(--s-4);
+  }
+  .how__dots {
+    display: none;
   }
   .how__steps {
     list-style: none;
     padding: 0;
     display: grid;
-    padding-block: 2rem 6rem;
+    gap: clamp(0.5rem, 2vh, 1.25rem);
   }
   .how__step {
     display: grid;
     grid-template-columns: 2.25rem 1fr;
     gap: var(--s-3);
-    padding-block: clamp(1.25rem, 4.5vh, 2.25rem);
-    opacity: 0.35;
-    transition: opacity var(--t-med) var(--ease);
+    opacity: 0.3;
+    transition: opacity var(--t-fast) var(--ease);
   }
   .how__step.is-active,
-  :global(html:not(.js)) .how__step {
+  .how__track:not(.is-pinned) .how__step {
     opacity: 1;
   }
   .how__n {
@@ -117,48 +189,59 @@ const steps = [
     color: var(--heat);
     font-size: 0.8125rem;
   }
+  .is-active .how__n {
+    background: var(--heat);
+    color: var(--bg);
+  }
   .how__body {
     display: grid;
-    gap: var(--s-2);
+    gap: var(--s-1);
   }
   .how__body p {
     color: var(--ink-2);
-    font-size: 1.125rem;
+    font-size: 1rem;
   }
   .how__body p.how__note {
     color: var(--heat);
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     transform: rotate(-2deg);
     transform-origin: left;
   }
+  /* desktop: only the active step shows its sentence, so the list fits on one screen */
+  .is-pinned .how__step:not(.is-active) .how__body p {
+    display: none;
+  }
+
   @media (max-width: 900px) {
     .how__grid {
       grid-template-columns: 1fr;
+      gap: var(--s-5);
+      align-content: center;
     }
-    /* the stage wrapper would end with the drawing; drop it so the drawing sticks over all the steps */
-    .how__stage {
-      display: contents;
+    /* phones: drawing on top, then only the current step, with dots for progress */
+    .how__dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      list-style: none;
+      padding: 0;
     }
-    .how__sticky {
-      top: 68px;
-      z-index: 2;
-      padding-block: var(--s-3);
-      background: color-mix(in srgb, var(--bg) 92%, transparent);
-      backdrop-filter: blur(8px);
+    .how__dots li {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--rule-strong);
+      transition: background var(--t-fast);
     }
-    .how__steps {
-      padding-block: var(--s-4) 0;
+    .how__dots li:global(.is-on) {
+      background: var(--heat);
     }
-    .how__step {
-      padding-block: var(--s-4);
+    .is-pinned .how__step:not(.is-active) {
+      display: none;
     }
-    .how__body p {
-      font-size: 1rem;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .how__step {
-      opacity: 1;
+    .is-pinned .how__steps {
+      min-height: 9rem;
+      align-content: start;
     }
   }
 </style>
