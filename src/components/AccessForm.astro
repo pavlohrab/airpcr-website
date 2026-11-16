@@ -22,22 +22,58 @@ const endpoint = `https://formsubmit.co/ajax/${EMAIL}`;
     <option value="educator">Educator / teaching lab</option>
     <option value="other">Other</option>
   </select>
-  <button class="btn btn--primary" type="submit">Get in touch <span class="arrow">→</span></button>
+  <button class="btn btn--primary form__send" type="submit">
+    <span class="form__label">Get in touch <span class="arrow">→</span></span>
+    <span class="form__spin" aria-hidden="true"></span>
+  </button>
+
+  <!-- shown after a successful sign-up: a ring and a check that draw themselves -->
+  <div class="form__done" hidden>
+    <svg viewBox="0 0 52 52" class="form__check" aria-hidden="true">
+      <circle cx="26" cy="26" r="23" />
+      <path d="M15 27l7.5 7.5L38 19" />
+    </svg>
+    <div>
+      <p class="form__done-title">Thank you.</p>
+      <p class="small">We'll be in touch soon.</p>
+    </div>
+  </div>
+
   <p class="form__msg mono" role="status" aria-live="polite"></p>
   <p class="form__alt small">Or email us at <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.</p>
 </form>
 
 <script>
+  // Sending: the button shows a spinner for at least ~1 s, so it feels like something happens.
+  // Success: the fields make way for a green check that draws itself.
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
   document.querySelectorAll<HTMLFormElement>("[data-form]").forEach((form) =>
     form.addEventListener("submit", async (e) => {
-      const msg = form.querySelector<HTMLElement>(".form__msg")!;
       e.preventDefault();
+      const msg = form.querySelector<HTMLElement>(".form__msg")!;
+      const done = form.querySelector<HTMLElement>(".form__done")!;
+      msg.textContent = "";
+      form.classList.add("is-sending");
+      form.querySelector("button")!.disabled = true;
+      let ok = false;
       try {
-        const r = await fetch(form.action, { method: "POST", body: new FormData(form), headers: { Accept: "application/json" } });
-        msg.textContent = r.ok ? "Thank you. We'll be in touch." : "Something went wrong. Please try again.";
-        if (r.ok) form.reset();
+        const [r] = await Promise.all([
+          fetch(form.action, { method: "POST", body: new FormData(form), headers: { Accept: "application/json" } }),
+          wait(1100),
+        ]);
+        const j = await r.json().catch(() => ({}));
+        ok = r.ok && String(j.success) !== "false";
+        if (!ok) msg.textContent = "Something went wrong. Please try again, or email us.";
       } catch {
-        msg.textContent = "Network error. Please try again.";
+        msg.textContent = "Network error. Please try again, or email us.";
+      }
+      form.classList.remove("is-sending");
+      form.querySelector("button")!.disabled = false;
+      if (ok) {
+        form.reset();
+        done.hidden = false;
+        form.classList.add("is-sent");
+        msg.textContent = "Thank you. We'll be in touch soon.";
       }
     }),
   );
@@ -68,6 +104,85 @@ const endpoint = `https://formsubmit.co/ajax/${EMAIL}`;
   .form .btn {
     white-space: nowrap;
   }
+
+  /* sending: label hides, spinner turns */
+  .form__send {
+    position: relative;
+  }
+  .form__spin {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 18px;
+    height: 18px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    opacity: 0;
+  }
+  .form.is-sending .form__label {
+    visibility: hidden;
+  }
+  .form.is-sending .form__spin {
+    opacity: 1;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  /* sent: the fields give way to the check */
+  .form.is-sent > input,
+  .form.is-sent > select,
+  .form.is-sent > button {
+    display: none;
+  }
+  .form__done {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: var(--s-4);
+    min-height: 48px;
+  }
+  .form__done[hidden] {
+    display: none;
+  }
+  .form__done-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  .form__done .small {
+    color: var(--ink-2);
+  }
+  .form__check {
+    flex: none;
+    width: 52px;
+    height: 52px;
+    fill: none;
+    stroke: var(--good);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .form__check circle {
+    stroke-dasharray: 145;
+    stroke-dashoffset: 145;
+    animation: draw 0.6s var(--ease) forwards;
+  }
+  .form__check path {
+    stroke-dasharray: 36;
+    stroke-dashoffset: 36;
+    animation: draw 0.35s var(--ease) 0.55s forwards;
+  }
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
   .form__alt {
     grid-column: 1 / -1;
     color: var(--muted);
@@ -75,15 +190,33 @@ const endpoint = `https://formsubmit.co/ajax/${EMAIL}`;
   .form__alt a {
     color: var(--ink-2);
   }
+  /* screen readers get the status line; on screen the check says it */
   .form__msg {
     grid-column: 1 / -1;
     min-height: 1.4em;
     font-size: 0.8125rem;
-    color: var(--sensor);
+    color: var(--heat);
+  }
+  .form.is-sent .form__msg {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
   }
   @media (max-width: 900px) {
     .form {
       grid-template-columns: 1fr;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .form__check circle,
+    .form__check path {
+      animation: none;
+      stroke-dashoffset: 0;
+    }
+    .form.is-sending .form__spin {
+      animation-duration: 2s;
     }
   }
 </style>
