@@ -7,7 +7,7 @@ import SectionHead from "../components/SectionHead.astro";
 import Tag from "../components/Tag.astro";
 import data from "../data/site-data.json";
 
-const all = data.market.filter((m) => !m.name.includes("loose"));
+const all = data.market;
 const clean = (n: string) =>
   n
     .replace(" Thermal Cycler", "")
@@ -19,7 +19,6 @@ const clean = (n: string) =>
     .replace("Mastercycler ", "");
 const makerShort = (mk: string) => mk.split(" (")[0].replace(" Scientific", "");
 const nameOf = (m: (typeof all)[number]) => {
-  if (m.group === "pcrfry") return "AirPCR";
   const n = clean(m.name);
   const mk = makerShort(m.maker);
   return n.toLowerCase().includes(mk.split(" ")[0].toLowerCase()) ? n : `${mk} ${n}`;
@@ -27,11 +26,11 @@ const nameOf = (m: (typeof all)[number]) => {
 const machines = all
   .map((m) => ({
     name: nameOf(m),
-    type: m.group === "pcrfry" ? "hot air · in development" : m.type.replace(/\s*\(.*\)$/, ""),
+    type: m.group === "airpcr" ? "hot air · in development" : m.type.replace(/\s*\(.*\)$/, ""),
     group: m.group,
-    us: m.group === "pcrfry",
+    us: m.group === "airpcr",
     price: m.price_usd,
-    priceKind: m.group === "pcrfry" ? "in parts (estimate)" : "retail",
+    priceKind: m.group === "airpcr" ? "in parts (estimate)" : "retail",
     min: Math.round(m.fast_min),
     tubes: m.wells,
     priceSource: m.price_source,
@@ -426,7 +425,7 @@ const yt = [25, 35, 45, 55];
     stroke: var(--ref);
     stroke-width: 2.5;
   }
-  .pt--pcrfry .pt__dot {
+  .pt--airpcr .pt__dot {
     fill: var(--heat);
     stroke: var(--bg-raise);
     filter: drop-shadow(0 0 8px var(--heat));
@@ -441,7 +440,7 @@ const yt = [25, 35, 45, 55];
     fill: var(--ink-2);
     pointer-events: none;
   }
-  .pt--pcrfry text {
+  .pt--airpcr text {
     fill: var(--heat);
     font-size: 24px;
     font-weight: 500;
@@ -554,7 +553,7 @@ const yt = [25, 35, 45, 55];
     .pt text {
       display: none;
     }
-    .pt--pcrfry text {
+    .pt--airpcr text {
       display: block;
     }
     .time-col {

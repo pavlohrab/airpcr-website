@@ -1,7 +1,5 @@
 # Build the static site and publish it to GitHub Pages on every push to main.
-# Repo settings → Pages → Source: "GitHub Actions".
-# Custom domain: add a repository variable CUSTOM_DOMAIN (e.g. airpcr.eu) under Settings → Secrets and
-# variables → Actions → Variables. Without it the site builds for https://<user>.github.io/<repo>/.
+# One-time setup: Settings → Pages → Source "GitHub Actions", custom domain airpcr.bio.
 name: Deploy
 on:
   push:
@@ -26,8 +24,6 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          SITE: ${{ vars.CUSTOM_DOMAIN && format('https://{0}', vars.CUSTOM_DOMAIN) || format('https://{0}.github.io', github.repository_owner) }}
-          BASE: ${{ vars.CUSTOM_DOMAIN && '/' || format('/{0}/', github.event.repository.name) }}
           PUBLIC_FORM_ENDPOINT: ${{ vars.PUBLIC_FORM_ENDPOINT }}
       - uses: actions/upload-pages-artifact@v3
         with:

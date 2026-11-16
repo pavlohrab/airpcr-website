@@ -1,6 +1,6 @@
 ---
 import SectionHead from "../components/SectionHead.astro";
-import { stroke, circle, roundRect, type Pt } from "../lib/sketch";
+import { stroke, circle, type Pt } from "../lib/sketch";
 
 let seed = 500;
 const s = (p: Pt[], a = 1.0) => stroke(p, seed++, a);

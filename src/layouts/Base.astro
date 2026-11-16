@@ -12,10 +12,11 @@ const {
   description = "AirPCR runs PCR with moving air instead of a heavy metal block: sixteen tubes, steady to within a degree, at a fraction of the cost.",
 } = Astro.props;
 const base = import.meta.env.BASE_URL;
+const canonical = new URL(Astro.url.pathname, Astro.site);
 const ld = {
   "@context": "https://schema.org",
   "@graph": [
-    { "@type": "Organization", name: "AirPCR", description },
+    { "@type": "Organization", name: "AirPCR", url: Astro.site?.href, description },
     {
       "@type": "Product",
       name: "AirPCR thermocycler",
@@ -42,7 +43,9 @@ const ld = {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:url" content={canonical} />
+    <link rel="canonical" href={canonical} />
+    <meta name="twitter:card" content="summary" />
     <script type="application/ld+json" set:html={JSON.stringify(ld)} />
     <script is:inline>
       document.documentElement.classList.add("js");
