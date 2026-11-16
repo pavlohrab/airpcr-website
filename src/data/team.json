@@ -1,5 +1,5 @@
 {
-  "mission": "We think every lab bench should be able to run PCR. So we're building a PCR machine out of air.",
+  "mission": "We think PCR should be affordable and built for the age of AI. So we're building one.",
   "people": [
     {
       "name": "Baris Özdinç",
@@ -32,16 +32,13 @@
   ],
   "principles": [
     {
-      "title": "Model first, then build.",
-      "text": "We test ideas in a computer before we cut a single part."
+      "title": "Model first, then build."
     },
     {
-      "title": "Measure everything.",
-      "text": "Every claim gets checked on the bench, and we say which numbers are measured."
+      "title": "Tested on the bench."
     },
     {
-      "title": "Open by default.",
-      "text": "Open data, open connections, parts anyone can buy."
+      "title": "Open by default."
     }
   ],
   "supporters": []

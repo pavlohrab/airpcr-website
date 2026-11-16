@@ -99,7 +99,7 @@ const href = (k: string, v: string) => (k === "email" ? `mailto:${v}` : v);
             <li class="card reveal" style={`--i:${i}`}>
               <span class="pr__n mono">{i + 1}</span>
               <h3>{p.title}</h3>
-              <p class="small">{p.text}</p>
+              {p.text && <p class="small">{p.text}</p>}
             </li>
           ))
         }
