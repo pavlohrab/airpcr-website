@@ -19,16 +19,16 @@ const path = (vs: number[]) => {
 const sample = path(A.T);
 const air = path(A.air);
 const points = [
-  { t: "Keeps every curve.", d: "So you can track exactly how your PCR went." },
-  { t: "Ask an AI.", d: "Hand the data to an AI assistant for a check." },
-  { t: "FAIR by design.", d: "Findable, accessible, interoperable and reusable data, with open connections for lab software and automation." },
+  { t: "Every run is saved.", d: "The full temperature curve, so you can see how your PCR went." },
+  { t: "Ask an AI.", d: "Give the run file to an AI assistant and ask whether the run went well." },
+  { t: "FAIR data.", d: "Findable, accessible, interoperable and reusable. It connects to lab software and robots." },
 ];
 ---
 
 <section class="section ai" id="ai" aria-labelledby="ai-title">
   <div class="wrap ai__grid">
     <div>
-      <SectionHead label="Open, FAIR data" title="Made for AI, open by design." id="ai-title" />
+      <SectionHead label="Open, FAIR data" title="Your run data, open and ready for AI." id="ai-title" />
       <ul class="ai__list">
         {
           points.map((p, i) => (
@@ -56,7 +56,7 @@ const points = [
 <span class="k">"curves"</span>: {"{"} <span class="k">"sample"</span>: [<span class="n">72.0</span>, <span class="n">72.4</span>, …], <span class="k">"air"</span>: […] {"}"},
 <span class="k">"result"</span>: <span class="s">"every step on target"</span>,
 <span class="k">"license"</span>: <span class="s">"open"</span></code></pre>
-      <p class="hand runfile__note" aria-hidden="true">“Was my annealing step OK?” — just ask</p>
+      <p class="hand runfile__note" aria-hidden="true">“Was my annealing step OK?”</p>
     </figure>
   </div>
 </section>

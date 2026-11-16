@@ -51,15 +51,16 @@ const P0 = Math.log10(80), P1 = Math.log10(20000);
 const Y0 = 20, Y1 = 56;
 const sx = (p: number) => ML + ((Math.log10(p) - P0) / (P1 - P0)) * (W - ML - MR);
 const sy = (m: number) => MT + ((m - Y0) / (Y1 - Y0)) * (H - MT - MB);
-const labelled = ["AirPCR", "Bio-Rad T100", "miniPCR mini16X", "Bento Lab Pro"];
+// direct labels, placed where they don't hit a neighbouring dot (r = right, l = left, b = below)
+const labelled: Record<string, "r" | "l" | "b"> = { AirPCR: "r", "Bio-Rad T100": "b", "miniPCR mini16X": "b", "Bento Lab Pro": "l" };
 const xt = [100, 300, 1000, 3000, 10000];
 const yt = [25, 35, 45, 55];
 ---
 
 <section class="section perf" id="performance" aria-labelledby="perf-title">
   <div class="wrap">
-    <SectionHead label="Performance" title="Comparable to a lab block, at a fraction of the cost." id="perf-title">
-      <p class="lead">A lab cycler costs thousands. AirPCR does the same job a few minutes slower, from about ${data.claims.parts_usd.value} of parts.</p>
+    <SectionHead label="Performance" title="A few minutes slower than a lab cycler, for a fraction of the price." id="perf-title">
+      <p class="lead">Lab cyclers cost $4,000 to $14,000. AirPCR's parts cost about ${data.claims.parts_usd.value}.</p>
     </SectionHead>
 
     <div class="perf__grid">
@@ -150,13 +151,15 @@ const yt = [25, 35, 45, 55];
               .sort((a, b) => Number(a.us) - Number(b.us)) // AirPCR drawn last, on top
               .map((m) => {
                 const x = sx(m.price), y = sy(m.min);
-                const right = m.price > 5000 || m.name === "miniPCR mini16X";
                 const r = m.us ? 11 : 7.5;
+                const at = labelled[m.name];
+                const lx = at === "r" ? x + r + 8 : at === "l" ? x - r - 8 : x;
+                const ly = at === "b" ? y + r + 20 : y + 6;
                 return (
                   <g class:list={["pt", `pt--${m.group}`]} data-name={m.name} data-x={x} data-y={y}>
                     <circle class="pt__dot" cx={x} cy={y} r={r} />
-                    {labelled.includes(m.name) && (
-                      <text x={right ? x - r - 8 : x + r + 8} y={y + 6} text-anchor={right ? "end" : "start"}>
+                    {at && (
+                      <text x={lx} y={ly} text-anchor={at === "r" ? "start" : at === "l" ? "end" : "middle"}>
                         {m.us ? "AirPCR" : m.name.replace(" Pro", "")}
                       </text>
                     )}
