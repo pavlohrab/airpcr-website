@@ -553,11 +553,41 @@ const yt = [25, 35, 45, 55];
     }
   }
   @media (max-width: 560px) {
+    .pillars {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--s-3);
+    }
+    .pillars .card {
+      padding: var(--s-4);
+    }
+    .pillars .card:last-child {
+      grid-column: 1 / -1;
+    }
+    .pillars .eyebrow,
+    .pillars .small {
+      display: none;
+    }
+    .pillars h3 {
+      font-size: 1rem;
+    }
+    .scatter__svg {
+      overflow: visible;
+    }
+    .axis text {
+      font-size: 32px;
+    }
+    .axis__title[text-anchor="end"] {
+      display: none;
+    }
     .pt text {
       display: none;
     }
     .pt--airpcr text {
       display: block;
+      font-size: 44px;
+    }
+    .hand-svg {
+      font-size: 46px;
     }
     .time-col {
       width: auto;

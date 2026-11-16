@@ -15,7 +15,7 @@ const series = { air: line(A.t, A.air), sample: line(A.t, A.T), t100: line(B.t, 
 const yt = [30, 50, 70, 90];
 const xt = [0, 20, 40, 60];
 // the three steps of a cycle, cut where the setpoint changes
-const names: Record<number, string> = { 95: "strands come apart", 58: "primers bind", 72: "the DNA is copied" };
+const names: Record<number, string> = { 95: "strands split", 58: "primers bind", 72: "DNA is copied" };
 const phases: { sp: number; t0: number; t1: number }[] = [];
 A.sp.forEach((sp, i) => {
   const last = phases[phases.length - 1];
@@ -280,6 +280,12 @@ const steps = phases.map((p, i) => ({ ...p, t1: phases[i + 1]?.t0 ?? TMAX, name:
   @media (max-width: 640px) {
     .anno {
       display: none;
+    }
+    .chart__svg {
+      overflow: visible;
+    }
+    .axis text {
+      font-size: 26px;
     }
     .chart__tip {
       position: static;

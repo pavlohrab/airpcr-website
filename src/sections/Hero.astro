@@ -208,6 +208,12 @@ const base = import.meta.env.BASE_URL;
       width: 100%;
     }
   }
+  /* phones: the loop is drawn right below in "How it works", so show it once */
+  @media (max-width: 640px) {
+    .hero__fig {
+      display: none;
+    }
+  }
   @media (max-width: 520px) {
     .stats {
       grid-template-columns: 1fr 1fr;

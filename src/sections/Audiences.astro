@@ -83,7 +83,22 @@ const cards = [
   }
   @media (max-width: 560px) {
     .aud__grid {
-      grid-template-columns: 1fr;
+      gap: var(--s-3);
+    }
+    .aud__card {
+      padding: var(--s-4);
+      gap: var(--s-2);
+    }
+    .aud__icon {
+      width: 36px;
+      height: 36px;
+      margin: 0;
+    }
+    .aud__card h3 {
+      font-size: 1rem;
+    }
+    .aud__card .small {
+      font-size: 0.8125rem;
     }
   }
 </style>

@@ -135,6 +135,10 @@ const steps = [
     .how__grid {
       grid-template-columns: 1fr;
     }
+    /* the stage wrapper would end with the drawing; drop it so the drawing sticks over all the steps */
+    .how__stage {
+      display: contents;
+    }
     .how__sticky {
       top: 68px;
       z-index: 2;
@@ -143,7 +147,13 @@ const steps = [
       backdrop-filter: blur(8px);
     }
     .how__steps {
-      padding-block: 0 6rem;
+      padding-block: var(--s-4) 0;
+    }
+    .how__step {
+      padding-block: var(--s-4);
+    }
+    .how__body p {
+      font-size: 1rem;
     }
   }
   @media (prefers-reduced-motion: reduce) {

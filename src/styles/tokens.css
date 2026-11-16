@@ -101,3 +101,10 @@
 }
 /* Lab Dark is the brand default for every visitor; Datasheet Light is opt-in via the theme toggle
    (and is what the print stylesheet uses). */
+
+/* phones: shorter gaps between sections */
+@media (max-width: 640px) {
+  :root {
+    --section-y: 4rem;
+  }
+}

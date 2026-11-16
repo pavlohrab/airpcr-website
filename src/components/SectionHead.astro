@@ -23,4 +23,10 @@ const { label, title, id } = Astro.props;
   .sh :global(p.lead) {
     max-width: 52ch;
   }
+  @media (max-width: 640px) {
+    .sh {
+      gap: var(--s-3);
+      margin-bottom: var(--s-6);
+    }
+  }
 </style>

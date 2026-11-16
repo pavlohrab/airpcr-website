@@ -162,6 +162,19 @@ const points = [
     .ai__grid {
       grid-template-columns: 1fr;
     }
+    /* phones: title, then the run file, then the three points */
+    .ai__grid > div {
+      display: contents;
+    }
+    .ai__grid :global(.sh) {
+      margin-bottom: 0;
+    }
+    .runfile {
+      order: 1;
+    }
+    .ai__list {
+      order: 2;
+    }
     .runfile__note {
       position: static;
       padding: 0 var(--s-4) var(--s-4);

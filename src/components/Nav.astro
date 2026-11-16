@@ -12,9 +12,10 @@ const links = [
 <header class="nav no-print" data-nav>
   <div class="wrap nav__in">
     <a href={base} class="nav__brand" aria-label="AirPCR home"><Wordmark /></a>
-    <nav aria-label="Sections">
+    <nav aria-label="Sections" id="nav-menu" class="nav__menu">
       <ul class="nav__links">
         {links.map(([t, h]) => <li><a href={`${base}${h}`}>{t}</a></li>)}
+        <li class="nav__menu-cta"><a href={`${base}#access`}>Get in touch →</a></li>
       </ul>
     </nav>
     <div class="nav__end">
@@ -25,9 +26,25 @@ const links = [
         >
       </button>
       <a class="btn btn--primary nav__cta" href={`${base}#access`}>Get in touch <span class="arrow">→</span></a>
+      <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="Menu" data-menu-toggle>
+        <span></span><span></span>
+      </button>
     </div>
   </div>
 </header>
+
+<script>
+  // Phone menu: the button opens the section links as a panel under the bar.
+  const header = document.querySelector<HTMLElement>("[data-nav]")!;
+  const toggle = header.querySelector<HTMLButtonElement>("[data-menu-toggle]")!;
+  const setOpen = (open: boolean) => {
+    header.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+  };
+  toggle.addEventListener("click", () => setOpen(!header.classList.contains("is-open")));
+  header.querySelectorAll(".nav__menu a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
+  document.addEventListener("keydown", (e) => e.key === "Escape" && setOpen(false));
+</script>
 
 <style>
   .nav {
@@ -116,12 +133,74 @@ const links = [
     padding: 0.5em 1em;
     font-size: 0.75rem;
   }
+  .nav__toggle,
+  .nav__menu-cta {
+    display: none;
+  }
   @media (max-width: 920px) {
-    .nav nav {
+    .nav__toggle {
+      display: grid;
+      place-content: center;
+      gap: 6px;
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      background: transparent;
+      cursor: pointer;
+    }
+    .nav__toggle span {
+      width: 18px;
+      height: 1.5px;
+      background: var(--ink);
+      transition: transform var(--t-fast) var(--ease);
+    }
+    .nav:global(.is-open) .nav__toggle span:first-child {
+      transform: translateY(3.75px) rotate(45deg);
+    }
+    .nav:global(.is-open) .nav__toggle span:last-child {
+      transform: translateY(-3.75px) rotate(-45deg);
+    }
+    .nav__menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--rule);
+      box-shadow: 0 24px 40px -24px rgb(0 0 0 / 0.6);
+    }
+    .nav:global(.is-open) .nav__menu {
+      display: block;
+    }
+    .nav:global(.is-open) {
+      background: var(--bg);
+      border-bottom-color: var(--rule);
+    }
+    .nav__links {
+      flex-direction: column;
+      gap: 0;
+      padding: var(--s-2) var(--gutter) var(--s-4);
+    }
+    .nav__links a {
+      display: block;
+      padding-block: var(--s-3);
+      font-size: 0.9375rem;
+      border-bottom: 1px solid var(--rule);
+    }
+    .nav__links a::after {
       display: none;
     }
+    .nav__menu-cta {
+      display: block;
+    }
+    .nav__menu-cta a {
+      color: var(--heat);
+      border-bottom: 0;
+    }
   }
-  @media (max-width: 420px) {
+  @media (max-width: 520px) {
     .nav__cta {
       display: none;
     }
