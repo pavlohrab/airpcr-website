@@ -1,18 +1,19 @@
 ---
 // One sign-up form for investors and early users, shared by the home and team pages.
-// FormSubmit (formsubmit.co) emails every sign-up to contact@airpcr.bio. The first sign-up sends an
-// activation email to that address; click the link once and the form is live.
+// Formspree (formspree.io) emails every sign-up to contact@airpcr.bio and keeps a copy in its dashboard.
+// The form ID comes from the Formspree dashboard (endpoint https://formspree.io/f/<ID>).
 interface Props {
   uid?: string;
 }
 const { uid = "f" } = Astro.props;
 const EMAIL = "contact@airpcr.bio";
-const endpoint = `https://formsubmit.co/ajax/${EMAIL}`;
+const FORMSPREE_ID = "xyewwzlq";
+const endpoint = `https://formspree.io/f/${FORMSPREE_ID}`;
 ---
 
 <form class="form" method="post" action={endpoint} data-form>
   <input type="hidden" name="_subject" value="New AirPCR sign-up" />
-  <input type="text" name="_honey" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true" />
+  <input type="text" name="_gotcha" class="sr-only" tabindex="-1" autocomplete="off" aria-hidden="true" />
   <label class="sr-only" for={`${uid}-email`}>Email</label>
   <input id={`${uid}-email`} name="email" type="email" required placeholder="you@lab.org" autocomplete="email" />
   <label class="sr-only" for={`${uid}-role`}>I am</label>
@@ -63,7 +64,11 @@ const endpoint = `https://formsubmit.co/ajax/${EMAIL}`;
         ]);
         const j = await r.json().catch(() => ({}));
         ok = r.ok && String(j.success) !== "false";
-        if (!ok) msg.textContent = "Something went wrong. Please try again, or email us.";
+        if (!ok) {
+          // Formspree explains failures here (e.g. an unverified form or a blocked submission)
+          console.warn("Sign-up not accepted:", r.status, j.errors ?? j.error ?? j);
+          msg.textContent = "Something went wrong. Please try again, or email us.";
+        }
       } catch {
         msg.textContent = "Network error. Please try again, or email us.";
       }
