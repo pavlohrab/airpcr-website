@@ -6,7 +6,7 @@ interface Props {
   uid?: string;
 }
 const { uid = "f" } = Astro.props;
-const EMAIL = "contact@airpcr.bio";
+const EMAIL = "contact[at]airpcr.bio";
 const FORMSPREE_ID = "xyewwzlq";
 const endpoint = `https://formspree.io/f/${FORMSPREE_ID}`;
 ---
@@ -41,7 +41,7 @@ const endpoint = `https://formspree.io/f/${FORMSPREE_ID}`;
   </div>
 
   <p class="form__msg mono" role="status" aria-live="polite"></p>
-  <p class="form__alt small">Or email us at <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.</p>
+  <p class="form__alt small">Or email us at {EMAIL}.</p>
 </form>
 
 <script>
